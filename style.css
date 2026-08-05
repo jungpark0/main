@@ -1,0 +1,373 @@
+* {
+    box-sizing: border-box;
+}
+
+html body {
+    padding: 5px;
+    font-family: "Google Sans", sans-serif;
+    line-height: 1.35;
+    background-color: rgb(250, 250, 250);
+    min-height: 100vh;
+    overflow-y: hidden;
+}
+a:hover {
+    font-style: italic;
+}
+
+header {
+    position: sticky;
+    left: 5px;
+    top: 5px;
+    font-size: 13px;
+    line-height: 1.35;
+    width: calc(50% - 5px);
+    padding-bottom: 3px;
+    z-index: 100;
+    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), width 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+menu {
+    display: flex;
+    position: fixed;
+    padding: 5px 15px 5px 15px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 13px;
+    text-align: left;
+    justify-content: space-between;
+    z-index: 999;
+}
+menu div {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* =========================================
+   Info Overlay
+   ========================================= */
+.info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(250, 250, 250, 0.72);
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    backdrop-filter: blur(2px);
+}
+
+.info-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.info-text-box {
+    position: absolute;
+    top: 23px;
+    left: 5px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+/* =========================================
+   Menu & Cursor Soft Background
+   ========================================= */
+.div-flex {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+}
+.div-flex1 {
+    gap: 0.5rem;
+}
+
+.content,
+.archive {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+#live-time, 
+#cursor-log,
+#last-updated {
+    color: darkgray;
+}
+
+#cursor-log {
+    text-align: right;
+}
+
+.content-bottom {
+    position: fixed;
+    bottom: calc(2.2rem + 7px);
+    left: calc(2.2rem + 7px);
+}
+
+/* =========================================
+   Hover & Loading Fade Effect (Global)
+   ========================================= */
+a, header p, .content p, #cursor-log, .archive-info p, .info-text-box p {
+    transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+body:has(menu a:hover) menu a,
+body.is-loading menu a {
+    opacity: 0.2; 
+}
+body:has(menu a:hover) menu a:hover {
+    opacity: 1;
+}
+
+body:has(menu a:hover) header p:not(#live-time, #last-updated),
+body:has(menu a:hover) .content p,
+body:has(menu a:hover) .archive-info p,
+body:has(menu a:hover) .info-text-box p,
+body.is-loading header p:not(#live-time, #last-updated),
+body.is-loading .content p,
+body.is-loading .archive-info p,
+body.is-loading .info-text-box p {
+    opacity: 0.15;
+}
+
+body:has(menu a:hover) #live-time,
+body:has(menu a:hover) #cursor-log,
+body:has(menu a:hover) #last-updated,
+body.is-loading #cursor-log {
+    color: black;
+}
+
+body.is-loading #live-time,
+body.is-loading #last-updated {
+    opacity: 0;
+}
+
+/* =========================================
+   Loading Fade Out Animation (1.5s Sync)
+   ========================================= */
+body.is-leaving-loading a,
+body.is-leaving-loading header p,
+body.is-leaving-loading .content p,
+body.is-leaving-loading .archive-info p,
+body.is-leaving-loading .info-text-box p,
+body.is-leaving-loading #cursor-log,
+body.is-leaving-loading #live-time,
+body.is-leaving-loading #last-updated {
+    transition: opacity 1.5s ease, color 1.5s ease !important;
+}
+
+/* =========================================
+   Graphic J, PARK, HANJA Sliding Layout
+   ========================================= */
+.graphic-j,
+.graphic-park,
+.graphic-hanja {
+    position: fixed;
+    top: calc(5px + 1.1rem);
+    width: calc(100vw - 10px - 2.2rem);
+    height: calc(100vh - 10px - 2.2rem);
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible; 
+    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.graphic-j {
+    left: calc(5px + 1.1rem);
+    transform: translateX(0);
+}
+
+.graphic-park {
+    left: calc(100vw + 5px + 1.1rem); 
+    transform: translateX(0);
+}
+
+.graphic-hanja {
+    /* 세 번째 화면은 200vw 밖에서 대기합니다 */
+    left: calc(200vw + 5px + 1.1rem); 
+    transform: translateX(0);
+}
+
+/* -----------------------------------------
+   Slide 2: PARK 화면 (-100vw 이동)
+   ----------------------------------------- */
+body.show-park .graphic-j,
+body.show-park .graphic-park,
+body.show-park .graphic-hanja {
+    transform: translateX(-100vw);
+}
+
+/* -----------------------------------------
+   Slide 3: HANJA 화면 (-200vw 이동)
+   ----------------------------------------- */
+body.show-hanja .graphic-j,
+body.show-hanja .graphic-park,
+body.show-hanja .graphic-hanja {
+    transform: translateX(-200vw);
+}
+
+/* 한자 패스들의 기본 뼈대 (그리기 전 기본 설정) */
+.graphic-hanja path {
+    fill: none; 
+    stroke: gainsboro; 
+    stroke-width: 2.2rem;
+    vector-effect: non-scaling-stroke; 
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+
+.j-path {
+    fill: none; 
+    stroke: black;
+    stroke-width: 2.2rem;
+    vector-effect: non-scaling-stroke; 
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+
+/* =========================================
+   U, N, G Typography Paths
+   ========================================= */
+.u-path, .n-path, .g-path, .p-path, .a-path, .r-path, .k-path {
+    fill: none; 
+    stroke: black;
+    stroke-width: 2.2rem;
+    vector-effect: non-scaling-stroke; 
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    opacity: 0; 
+}
+
+/* =========================================
+   Button
+   ========================================= */
+button,
+#scroll-direct {
+    position: fixed;
+    font-family: inherit;
+    font-size: 13px;
+    color: darkgray;
+    background-color: transparent;
+    border: none;
+    z-index: 80;
+}
+#skip-btn {
+    top: 50%;
+    right: 50%;
+    transform: translate(-50%, -50%);
+    transition: color 0.3s ease, opacity 0.5s ease;
+    cursor: pointer;
+}
+
+#scroll-direct {
+    transform: translate(0, -50%);
+    top: 46.2%;
+    right: 5px;
+}
+#skip-btn:hover {
+    color: black;
+    font-style: italic;
+}
+
+/* =========================================
+   Header Layout Change on PARK & HANJA Slide
+   ========================================= */
+.div-flex {
+    position: relative;
+    width: 60%;
+    min-height: 2.7em; 
+    transition: width 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.div-flex > p {
+    position: absolute;
+    left: 0%;
+    transform: translateX(0%);
+    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    white-space: nowrap;
+}
+
+.div-flex > .div-flex1 {
+    position: absolute;
+    display: flex;
+    flex-direction: column; 
+    gap: 0; 
+    left: 100%;
+    transform: translateX(-100%);
+    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    white-space: nowrap;
+}
+
+/* PARK 화면과 HANJA 화면에서 공통으로 헤더 우측 이동 적용 */
+body.show-park header,
+body.show-hanja header {
+    width: calc(50% - 2.2rem - 5px);
+    transform: translateX(calc(50vw + 2.2rem));
+}
+
+body.show-hanja header {
+    width: calc(50% - 5px);
+    transform: translateX(calc(50vw));
+}
+
+body.show-park .div-flex,
+body.show-hanja .div-flex {
+    width: 100%;
+}
+
+body.show-park .div-flex > p,
+body.show-hanja .div-flex > p {
+    left: 100%;
+    transform: translateX(-100%);
+}
+
+body.show-park .div-flex > .div-flex1,
+body.show-hanja .div-flex > .div-flex1 {
+    left: 0%;
+    transform: translateX(0%);
+}
+
+/* =========================================
+   Archive Masonry Layout
+   ========================================= */
+   .archive {
+    display: grid;
+    grid-auto-flow: column; 
+    grid-auto-columns: minmax(110px, 15vw); 
+    column-gap: 10px;
+    overflow-x: auto;
+    width: 100%;
+    height: 100vh;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 스크롤바 숨기기 */
+.archive::-webkit-scrollbar {
+    display: none;
+}
+.archive {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.archive-item {
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+}
+
+.archive-item img {
+    width: 100%;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.archive-item .info-detail {
+    display: flex;
+    justify-content: space-between;
+    color: darkgray;
+}
