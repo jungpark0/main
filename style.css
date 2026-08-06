@@ -9,6 +9,8 @@ html body {
     background-color: rgb(250, 250, 250);
     min-height: 100vh;
     overflow-y: hidden;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
 }
 a:hover {
     font-style: italic;
@@ -254,6 +256,7 @@ button,
     border: none;
     z-index: 80;
 }
+
 #skip-btn {
     top: 50%;
     right: 50%;
@@ -270,6 +273,20 @@ button,
 #skip-btn:hover {
     color: black;
     font-style: italic;
+}
+
+#scroll-direct-archive {
+    position: fixed;
+    font-family: inherit;
+    font-size: 13px;
+    color: darkgray;
+    background-color: transparent;
+    border: none;
+    z-index: 80;
+    transform: translate(0, -50%);
+    top: 50%;
+    right: 5px;
+    transition: opacity 0.5s ease;
 }
 
 /* =========================================
@@ -341,11 +358,11 @@ body.show-hanja .div-flex > .div-flex1 {
     overflow-x: auto;
     width: 100%;
     height: 100vh;
-    scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: none; 
+    scroll-snap-type: none !important;
 }
 
-/* 스크롤바 숨기기 */
 .archive::-webkit-scrollbar {
     display: none;
 }
@@ -355,7 +372,6 @@ body.show-hanja .div-flex > .div-flex1 {
 }
 
 .archive-item {
-    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
 }
@@ -370,4 +386,232 @@ body.show-hanja .div-flex > .div-flex1 {
     display: flex;
     justify-content: space-between;
     color: darkgray;
+}
+
+/* =========================================
+   Media Popup Styles
+   ========================================= */
+.popup-flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 하단 메뉴(z-index:999)보다 위로 올라오게 설정 */
+}
+
+#media-popup-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* 팝업 등장 시 콘텐츠가 살짝 커지며 나타나는 디테일 애니메이션 */
+    transform: scale(0.95);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.info-overlay.is-active #media-popup-content {
+    transform: scale(1);
+}
+
+#media-popup-content img,
+#media-popup-content video {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain; /* 비율이 깨지지 않고 화면 안에 딱 맞게 조정 */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1); /* 사진이 살짝 떠보이도록 그림자 추가 */
+}
+
+/* =========================================
+   Media Popup & Hover Overlay Styles
+   ========================================= */
+
+/* JS로 생성된 미디어 래퍼 */
+.popup-media-wrap {
+    position: relative;
+    display: block;
+    overflow: hidden; 
+    margin-bottom: 5px; 
+}
+
+.popup-media-wrap img,
+.popup-media-wrap video {
+    display: block;
+    width: 100%;
+    margin-bottom: 0 !important;
+}
+
+/* 이미지 위에 깔리는 블러 오버레이 */
+.popup-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(250, 250, 250, 0.72);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none; 
+}
+
+.popup-hover-overlay.is-hovered {
+    opacity: 1;
+}
+
+.popup-hover-overlay span {
+    font-family: inherit;
+    font-size: 13px;
+    color: black;
+    font-style: italic;
+}
+
+.popup-flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#media-popup-content {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(0.95);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.info-overlay.is-active #media-popup-content {
+    transform: scale(1);
+}
+
+/* 단일 이미지 / 로컬 비디오 / 유튜브 팝업 공통 그림자 및 크기 설정 */
+#media-popup-content > img:not(.popup-gallery img),
+#media-popup-content > video,
+#media-popup-content > iframe {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    cursor: default;
+}
+
+/* 유튜브 iframe 전용 16:9 비율 및 테두리 제거 */
+#media-popup-content > iframe {
+    width: 80vw; /* 화면에 큼직하게 꽉 차도록 설정 */
+    aspect-ratio: 16 / 9; /* 16:9 비율 강제 유지 */
+    border: none;
+    background-color: black;
+}
+
+/* =========================================
+   다중 이미지 가로 스크롤 갤러리
+   ========================================= */
+.popup-gallery {
+    display: flex;
+    align-items: center;
+    width: 100vw;
+    /* height: 100vh; 삭제: 위아래 빈 공간(배경) 클릭 시 팝업이 닫히도록 변경 */
+    overflow-x: auto;
+    /* padding: 0 50vw; 삭제: SVG 0픽셀 증발 버그의 원인 */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.popup-gallery::-webkit-scrollbar {
+    display: none;
+}
+
+/* padding을 쓰는 대신 가상 요소를 추가해 안전하게 50vw 여백(첫 이미지 중앙 정렬용)을 생성 */
+.popup-gallery::before,
+.popup-gallery::after {
+    content: '';
+    flex: 0 0 50vw;
+}
+
+/* 갤러리 내부의 SVG/이미지 (찌그러짐 완벽 방지) */
+.popup-gallery img {
+    height: 80vh; 
+    width: auto;
+    margin-right: 10px; /* gap 대신 사용하여 스크롤 계산 오차 방지 */
+    flex-shrink: 0; 
+    object-fit: contain;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.popup-gallery img:last-child {
+    margin-right: 0;
+}
+
+/* =========================================
+   Drag & Selection Prevention
+   ========================================= */
+/* 드래그 시 텍스트/요소 선택 방지 및 커서 변경 */
+.is-dragging {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    cursor: grabbing !important;
+}
+
+.archive, .popup-gallery {
+    cursor: grab;
+}
+
+.archive:active, .popup-gallery:active {
+    cursor: grabbing;
+}
+
+/* 브라우저 기본 이미지/링크 고스트 드래그 방지 */
+img, svg, a {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
+
+
+
+
+
+/* =========================================
+   Mobile Block Overlay Styles
+   ========================================= */
+#mobile-block-overlay {
+    display: none; /* PC에서는 숨김 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(250, 250, 250); /* 기존 사이트 배경색과 통일 */
+    z-index: 99999; /* 모든 요소의 최상단 */
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 13px;
+    line-height: 0.8;
+    color: black;
+}
+
+/* 스마트폰 및 태블릿 세로 모드 해상도 (768px 이하)에서만 작동 */
+@media screen and (max-width: 768px) {
+    #mobile-block-overlay {
+        display: flex; /* 모바일에서 안내창 켜기 */
+    }
+    
+    /* 모바일에서는 기존 콘텐츠들을 완전히 숨겨서 스크롤 및 터치 원천 차단 */
+    header, .content, menu, .archive, svg, .info-overlay {
+        display: none !important;
+    }
+    
+    body {
+        overflow: hidden !important;
+    }
 }

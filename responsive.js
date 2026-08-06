@@ -773,3 +773,54 @@ window.addEventListener('resize', () => {
 drawResponsiveJUNG();
 drawResponsivePARK();
 drawResponsiveHANJA(hanjaWeight);
+
+
+
+/* =========================================
+   Index Page Drag Swipe (Slide 0, 1, 2)
+   ========================================= */
+let indexDragStartX = 0;
+let isIndexDragging = false;
+
+window.addEventListener('mousedown', (e) => {
+    // 아카이브, 팝업창, 메뉴 등 다른 클릭/스크롤 요소에서는 슬라이드 스와이프 방지
+    if (e.target.closest('.archive') || e.target.closest('#media-popup-content') || e.target.closest('menu') || e.target.closest('.info-text-box')) return;
+    
+    // 모바일 오버레이가 켜져있으면 작동 방지
+    if (document.getElementById('mobile-block-overlay') && window.getComputedStyle(document.getElementById('mobile-block-overlay')).display !== 'none') return;
+    
+    isIndexDragging = true;
+    indexDragStartX = e.clientX;
+    document.body.classList.add('is-dragging');
+});
+
+window.addEventListener('mouseup', (e) => {
+    if (!isIndexDragging) return;
+    isIndexDragging = false;
+    document.body.classList.remove('is-dragging');
+
+    if (!isIntroFinished || isScrollLocked) return;
+
+    const infoPopup = document.getElementById('dynamic-info-popup');
+    if (infoPopup && infoPopup.classList.contains('is-active')) return;
+
+    const diffX = indexDragStartX - e.clientX;
+
+    // 50px 이상 드래그 시 슬라이드 전환 실행
+    if (Math.abs(diffX) > 50) {
+        if (diffX > 0) { // 왼쪽으로 스와이프 (우측 슬라이드로)
+            if (currentSlide === 0) goToSlide(1);
+            else if (currentSlide === 1) goToSlide(2);
+        } else { // 오른쪽으로 스와이프 (좌측 슬라이드로)
+            if (currentSlide === 1) goToSlide(0);
+            else if (currentSlide === 2) goToSlide(1);
+        }
+    }
+});
+
+// 드래그 중 기본 이벤트 방지
+window.addEventListener('mousemove', (e) => {
+    if (isIndexDragging) {
+        e.preventDefault();
+    }
+}, { passive: false });
