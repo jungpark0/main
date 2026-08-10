@@ -103,10 +103,14 @@ menu div {
     text-align: right;
 }
 
-.content-bottom {
-    position: fixed;
-    bottom: calc(2.2rem + 7px);
-    left: calc(2.2rem + 7px);
+/* =========================================
+   Archive Page: Name Text Progress Bar
+   ========================================= */
+/* 아카이브 페이지에서는 인덱스용 1초 애니메이션(transition)을 제거하여 스크롤에 즉각 반응하게 만듭니다 */
+.archive-body header .div-flex > p {
+    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), width 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    position: relative;
+    z-index: 10;
 }
 
 /* =========================================

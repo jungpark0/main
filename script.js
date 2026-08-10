@@ -236,11 +236,22 @@ window.addEventListener('DOMContentLoaded', () => {
         }, { passive: true });
 
         // 2. 마우스 휠 스크롤
+        let wheelDelta = 0;
+        let wheelFrame = null;
+
         archiveContainer.addEventListener('wheel', (e) => {
-            if (Math.abs(e.deltaX) > 0) return;
-            if (Math.abs(e.deltaY) > 0) {
-                e.preventDefault(); 
-                archiveContainer.scrollLeft += e.deltaY;
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            if (Math.abs(e.deltaY) === 0) return;
+
+            e.preventDefault();
+            wheelDelta += e.deltaY;
+
+            if (!wheelFrame) {
+                wheelFrame = requestAnimationFrame(() => {
+                    archiveContainer.scrollLeft += wheelDelta;
+                    wheelDelta = 0;
+                    wheelFrame = null;
+                });
             }
         }, { passive: false });
 
@@ -474,6 +485,119 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+/* =========================================
+   Archive Horizontal Scroll & UI Animation
+   ========================================= */
+window.addEventListener('DOMContentLoaded', () => {
+    const archiveContainer = document.querySelector('.archive');
+    const scrollDirectArchive = document.getElementById('scroll-direct-archive');
+    
+    // [추가] 텍스트 프로그레스 바를 위한 타겟 요소들
+    const nameText = document.querySelector('.archive-body header .div-flex > p');
+    const timeBox = document.querySelector('.archive-body header .div-flex > .div-flex1');
+    const headerFlex = document.querySelector('.archive-body header .div-flex');
+    
+    window.isScrollingDrag = false; 
+
+    if (archiveContainer) {
+        
+        const updateProgressBar = () => {
+            if (!nameText) return;
+            
+            // 전체 가로 스크롤 가능 구역
+            const maxScrollLeft = archiveContainer.scrollWidth - archiveContainer.clientWidth;
+            
+            if (maxScrollLeft <= 0) {
+                nameText.style.transform = `translateX(0px)`;
+                return;
+            }
+            
+            // 현재 스크롤 진행도 (0 ~ 1)
+            const scrollRatio = archiveContainer.scrollLeft / maxScrollLeft;
+            
+            // [핵심 변경] 브라우저 전체 창 너비 기준으로 계산
+            // 브라우저 전체 너비 - 이름 텍스트 실제 너비 - 양옆 패딩(좌우 5px씩 총 10px)
+            const maxMoveX = window.innerWidth - nameText.offsetWidth - 10;
+            
+            // 스크롤 비율에 맞춰 X좌표 이동
+            const moveX = Math.max(0, maxMoveX * scrollRatio);
+            nameText.style.transform = `translateX(${moveX}px)`;
+        };
+
+        // 1. Scroll Direct 텍스트 페이드아웃 및 [이름 텍스트 이동]
+        archiveContainer.addEventListener('scroll', () => {
+            if (scrollDirectArchive) {
+                if (archiveContainer.scrollLeft > 10) {
+                    scrollDirectArchive.style.opacity = '0';
+                    scrollDirectArchive.style.pointerEvents = 'none';
+                } else {
+                    scrollDirectArchive.style.opacity = '1';
+                    scrollDirectArchive.style.pointerEvents = 'auto';
+                }
+            }
+            updateProgressBar(); // 스크롤할 때마다 위치 갱신
+        }, { passive: true });
+
+        // 브라우저 리사이즈 시 남은 공간이 변하므로 재계산
+        window.addEventListener('resize', updateProgressBar);
+        // 폰트 로딩 후 글자 폭이 달라질 수 있으므로 0.1초 뒤 1회 초기화
+        setTimeout(updateProgressBar, 100);
+
+
+        // 2. 마우스 휠 스크롤
+        let wheelDelta = 0;
+        let wheelFrame = null;
+
+        archiveContainer.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            if (Math.abs(e.deltaY) === 0) return;
+
+            e.preventDefault();
+            wheelDelta += e.deltaY;
+
+            if (!wheelFrame) {
+                wheelFrame = requestAnimationFrame(() => {
+                    archiveContainer.scrollLeft += wheelDelta;
+                    wheelDelta = 0;
+                    wheelFrame = null;
+                });
+            }
+        }, { passive: false });
+
+        // 3. 마우스 드래그 스크롤
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        archiveContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            window.isScrollingDrag = false;
+            document.body.classList.add('is-dragging');
+            startX = e.pageX - archiveContainer.offsetLeft;
+            scrollLeft = archiveContainer.scrollLeft;
+        });
+        
+        window.addEventListener('mouseup', () => {
+            isDown = false;
+            document.body.classList.remove('is-dragging');
+            // 드래그 후 마우스를 뗄 때 클릭이 발생하는 것을 막기 위해 0.05초 유지
+            setTimeout(() => { window.isScrollingDrag = false; }, 50);
+        });
+
+        archiveContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - archiveContainer.offsetLeft;
+            const walk = (x - startX) * 1.5; // 드래그 속도 배율
+            
+            if (Math.abs(walk) > 5) {
+                window.isScrollingDrag = true; // 5px 이상 움직이면 드래그로 간주
+            }
+            archiveContainer.scrollLeft = scrollLeft - walk;
+        });
+    }
+});
+
 
 
 
@@ -484,8 +608,7 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('DOMContentLoaded', () => {
     const mobileOverlay = document.createElement('div');
     mobileOverlay.id = 'mobile-block-overlay';
-    
-    // 밀크티 사이트나 원하시는 문구로 자유롭게 수정하시면 됩니다.
+
     mobileOverlay.innerHTML = `
         <p>This website is not optimized for Mobile devices yet.<br><br>Please visit on your PC.</p>
     `;
