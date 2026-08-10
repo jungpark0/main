@@ -216,7 +216,6 @@ body.show-hanja .graphic-hanja {
     fill: none; 
     stroke: gainsboro; 
     stroke-width: 2.2rem;
-    vector-effect: non-scaling-stroke; 
     stroke-linecap: square;
     stroke-linejoin: miter;
 }
@@ -225,7 +224,6 @@ body.show-hanja .graphic-hanja {
     fill: none; 
     stroke: black;
     stroke-width: 2.2rem;
-    vector-effect: non-scaling-stroke; 
     stroke-linecap: square;
     stroke-linejoin: miter;
 }
@@ -237,7 +235,6 @@ body.show-hanja .graphic-hanja {
     fill: none; 
     stroke: black;
     stroke-width: 2.2rem;
-    vector-effect: non-scaling-stroke; 
     stroke-linecap: square;
     stroke-linejoin: miter;
     opacity: 0; 
