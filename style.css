@@ -1,5 +1,5 @@
 * {
-    box-sizing: border-box;
+    box-sizing: border-box !important;
 }
 
 html body {
@@ -506,7 +506,6 @@ body.show-hanja .div-flex > .div-flex1 {
 
 /* 유튜브 iframe 전용 16:9 비율 및 테두리 제거 */
 #media-popup-content > iframe {
-    width: 80vw; /* 화면에 큼직하게 꽉 차도록 설정 */
     aspect-ratio: 16 / 9; /* 16:9 비율 강제 유지 */
     border: none;
     background-color: black;
@@ -519,9 +518,7 @@ body.show-hanja .div-flex > .div-flex1 {
     display: flex;
     align-items: center;
     width: 100vw;
-    /* height: 100vh; 삭제: 위아래 빈 공간(배경) 클릭 시 팝업이 닫히도록 변경 */
     overflow-x: auto;
-    /* padding: 0 50vw; 삭제: SVG 0픽셀 증발 버그의 원인 */
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -539,12 +536,11 @@ body.show-hanja .div-flex > .div-flex1 {
 
 /* 갤러리 내부의 SVG/이미지 (찌그러짐 완벽 방지) */
 .popup-gallery img {
-    height: 80vh; 
     width: auto;
-    margin-right: 10px; /* gap 대신 사용하여 스크롤 계산 오차 방지 */
     flex-shrink: 0; 
-    object-fit: contain;
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    margin: 50px 10px 50px 0;
+    scroll-snap-align: center;
 }
 
 .popup-gallery img:last-child {
@@ -577,42 +573,129 @@ img, svg, a {
     -o-user-drag: none;
 }
 
-
-
-
-
 /* =========================================
-   Mobile Block Overlay Styles
+   Mobile Optimization (max-width: 768px)
    ========================================= */
-#mobile-block-overlay {
-    display: none; /* PC에서는 숨김 */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgb(250, 250, 250); /* 기존 사이트 배경색과 통일 */
-    z-index: 99999; /* 모든 요소의 최상단 */
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    font-size: 13px;
-    line-height: 0.8;
-    color: black;
-}
+@media (max-width: 768px) {
+    /* --- 공통 --- */
+    html body {
+        overflow-y: auto !important;
+        overscroll-behavior-y: auto !important;
+    }
+    
+    header {
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 5px;
+        width: 100%;
+        height: 3.5rem;
+        background: #ffffff;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 0) 100%);
+    }
+    .div-flex {
+        display: flex;
+        justify-content: normal;
+        width: 100%;
+    }
+    .div-flex1 {
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+    menu {
+        padding: 5px;
+    }
+    #scroll-direct-archive,
+    #scroll-direct,
+    #cursor-log {
+        display: none;
+    }
 
-/* 스마트폰 및 태블릿 세로 모드 해상도 (768px 이하)에서만 작동 */
-@media screen and (max-width: 768px) {
-    #mobile-block-overlay {
-        display: flex; /* 모바일에서 안내창 켜기 */
+    #last-updated {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    /* 모바일에서는 기존 콘텐츠들을 완전히 숨겨서 스크롤 및 터치 원천 차단 */
-    header, .content, menu, .archive, svg, .info-overlay {
-        display: none !important;
+    #last-updated.hide-on-scroll {
+        opacity: 0;
+        pointer-events: none; /* 투명해졌을 때 클릭되는 것을 방지 */
     }
-    
-    body {
-        overflow: hidden !important;
+
+    body:has(menu a:hover) header p:not(#live-time, #last-updated),
+    body:has(menu a:hover) .info-text-box p,
+    body.is-loading .info-text-box p {
+        opacity: 1;
     }
+
+    body:has(menu a:hover) #live-time,
+    body:has(menu a:hover) #last-updated {
+        color: darkgray;
+    }
+    .info-text-box {
+        top: 2.5rem;
+    }
+
+    /* --- Index Page: 수직 배치 및 네이티브 스크롤 --- */
+    body:not(.archive-body) {
+        overflow-x: hidden;
+        overflow-y: auto !important;
+        overscroll-behavior-y: auto !important;
+    }
+    .j-path,
+    .u-path,
+    .n-path,
+    .g-path,
+    .graphic-park,
+    .graphic-hanja {
+        display: none;
+    }
+
+    /* --- Archive Page: CSS Scroll Snap --- */
+    .archive-body {
+        overflow: hidden !important; /* Body 자체의 전체 스크롤을 완벽히 차단 */
+    }
+
+    .archive {
+        display: flex;
+        gap: 1.5rem;
+        flex-direction: column;
+        overflow-y: auto !important;
+        align-items: center;
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    .archive-item {
+        width: 100%;
+        grid-column: auto !important;
+        scroll-snap-align: center;
+        transition: flex 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+        transform-origin: center center;
+    }
+
+    .popup-gallery {
+        scroll-snap-type: x mandatory;
+    }
+    .archive-item.is-center {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .archive-item:not(.is-center) {
+        transform: scale(0.5);
+    }
+
+    #media-popup-content > img:not(.popup-gallery img),
+    #media-popup-content > video,
+    #media-popup-content > iframe {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        cursor: default;
+    }
+    #media-popup-content > iframe {
+        aspect-ratio: 1 / 1; 
+    }
+
 }

@@ -115,6 +115,9 @@ function goToSlide(index) {
 
 // 마우스 휠 및 트랙패드 스크롤 (상하 & 좌우 스와이프 지원)
 window.addEventListener('wheel', (e) => {
+    // [추가] 모바일 해상도에서는 데스크탑용 스크롤 하이재킹 및 가로 슬라이드 방식을 즉시 중단합니다.
+    if (window.innerWidth <= 768) return;
+
     // 트랙패드 좌우 스크롤 시 브라우저 뒤로가기 기본 동작 방지
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         e.preventDefault(); 
@@ -783,6 +786,8 @@ let indexDragStartX = 0;
 let isIndexDragging = false;
 
 window.addEventListener('mousedown', (e) => {
+    if (window.innerWidth <= 768) return;
+    
     // 아카이브, 팝업창, 메뉴 등 다른 클릭/스크롤 요소에서는 슬라이드 스와이프 방지
     if (e.target.closest('.archive') || e.target.closest('#media-popup-content') || e.target.closest('menu') || e.target.closest('.info-text-box')) return;
     
@@ -824,3 +829,6 @@ window.addEventListener('mousemove', (e) => {
         e.preventDefault();
     }
 }, { passive: false });
+
+/* 모바일 responsive */
+

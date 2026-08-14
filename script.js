@@ -87,56 +87,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// /* =========================================
-//    10. Archive CSS Grid Masonry (JS Row Span)
-//    ========================================= */
-//    window.addEventListener('DOMContentLoaded', () => {
-//     const archiveGrid = document.querySelector('.archive');
-//     if (!archiveGrid) return;
-
-//     const items = document.querySelectorAll('.archive-item');
-    
-//     // 높이 측정 및 모눈종이 칸(Span) 수 계산 함수
-//     function resizeGridItem(item) {
-//         // 정확한 측정을 위해 기존에 계산된 span 값을 임시로 풉니다.
-//         item.style.gridRowEnd = 'auto';
-        
-//         // 아이템 내부 콘텐츠의 실제 픽셀 높이를 소수점까지 정밀하게 캡처합니다.
-//         const contentHeight = item.getBoundingClientRect().height;
-        
-//         // CSS에서 grid-auto-rows를 1px로 했으므로, '높이 = 차지할 칸 수'가 됩니다.
-//         // 여기에 시그니처 세로 간격인 5px을 더한 뒤, 반올림(ceil)하여 딱 떨어지는 칸 수를 구합니다.
-//         const rowSpan = Math.ceil(contentHeight + 5);
-        
-//         // CSS에게 "아래로 rowSpan 칸만큼 차지해라"라고 명령합니다.
-//         item.style.gridRowEnd = `span ${rowSpan}`;
-//     }
-
-//     // 전체 아이템 재계산
-//     function resizeAllGridItems() {
-//         items.forEach(item => resizeGridItem(item));
-//     }
-
-//     // ★ 가장 중요한 부분: 이미지가 로딩된 '직후'에 높이를 재야 정확합니다.
-//     items.forEach(item => {
-//         const img = item.querySelector('img');
-//         if (img) {
-//             // 이미지가 이미 캐시되어 로드된 상태라면 즉시 계산
-//             if (img.complete) {
-//                 resizeGridItem(item);
-//             } else {
-//                 // 아직 로딩 중이라면 로딩이 끝나는 순간 계산
-//                 img.addEventListener('load', () => resizeGridItem(item));
-//             }
-//         } else {
-//             // 이미지가 없는 텍스트 전용 카드라면 즉시 계산
-//             resizeGridItem(item);
-//         }
-//     });
-
-//     // 화면 크기가 변할 때(리사이즈) 비율에 맞춰 높이를 다시 테트리스처럼 맞춥니다.
-//     window.addEventListener('resize', resizeAllGridItems);
-// });
 
 /* =========================================
    11. Dynamic Info Popup
@@ -213,16 +163,47 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   Archive Horizontal Scroll & UI Animation
+   Archive Horizontal Scroll & UI Animation (최적화 버전)
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     const archiveContainer = document.querySelector('.archive');
     const scrollDirectArchive = document.getElementById('scroll-direct-archive');
     
-    window.isScrollingDrag = false; // [핵심] 스크롤 중 클릭을 방지하기 위한 전역 상태
+    const nameText = document.querySelector('.archive-body header .div-flex > p');
+    
+    window.isScrollingDrag = false; 
 
     if (archiveContainer) {
-        // 1. Scroll Direct 텍스트 페이드아웃
+        
+        // [최적화 1] 스크롤할 때마다 무거운 계산을 피하기 위해 측정값을 저장해둘 변수
+        let maxScrollLeft = 0;
+        let maxMoveX = 0;
+
+        // [최적화 2] 화면 크기나 글자 크기를 측정하는 함수 (리사이즈될 때만 실행)
+        const calculateDimensions = () => {
+            if (!nameText) return;
+            maxScrollLeft = archiveContainer.scrollWidth - archiveContainer.clientWidth;
+            maxMoveX = window.innerWidth - nameText.offsetWidth - 10;
+        };
+
+        // [최적화 3] 스크롤 위치에 맞춰 텍스트를 이동시키는 함수
+        let isTicking = false;
+        const updateProgressBar = () => {
+            if (!nameText) return;
+            
+            if (maxScrollLeft <= 0) {
+                nameText.style.transform = `translateX(0px)`;
+                return;
+            }
+            
+            const scrollRatio = archiveContainer.scrollLeft / maxScrollLeft;
+            const moveX = Math.max(0, maxMoveX * scrollRatio);
+            
+            // translate3d를 사용하여 크롬에서 하드웨어 가속 강제 활성화
+            nameText.style.transform = `translate3d(${moveX}px, 0, 0)`;
+        };
+
+        // 1. Scroll Event (requestAnimationFrame으로 초당 60프레임 동기화)
         archiveContainer.addEventListener('scroll', () => {
             if (scrollDirectArchive) {
                 if (archiveContainer.scrollLeft > 10) {
@@ -233,13 +214,35 @@ window.addEventListener('DOMContentLoaded', () => {
                     scrollDirectArchive.style.pointerEvents = 'auto';
                 }
             }
+            
+            // 크롬 스크롤 버벅임 방지용 rAF 패턴
+            if (!isTicking) {
+                window.requestAnimationFrame(() => {
+                    updateProgressBar();
+                    isTicking = false;
+                });
+                isTicking = true;
+            }
         }, { passive: true });
+
+        // 브라우저 리사이즈 시에만 무거운 계산(크기 측정)을 다시 수행합니다.
+        window.addEventListener('resize', () => {
+            calculateDimensions();
+            updateProgressBar();
+        });
+        
+        // 초기 로딩 시 폰트가 적용된 직후 1회 계산
+        setTimeout(() => {
+            calculateDimensions();
+            updateProgressBar();
+        }, 100);
 
         // 2. 마우스 휠 스크롤
         let wheelDelta = 0;
         let wheelFrame = null;
 
         archiveContainer.addEventListener('wheel', (e) => {
+            if (window.innerWidth <= 768) return;
             if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
             if (Math.abs(e.deltaY) === 0) return;
 
@@ -261,6 +264,7 @@ window.addEventListener('DOMContentLoaded', () => {
         let scrollLeft;
 
         archiveContainer.addEventListener('mousedown', (e) => {
+            if (window.innerWidth <= 768) return;
             isDown = true;
             window.isScrollingDrag = false;
             document.body.classList.add('is-dragging');
@@ -271,7 +275,6 @@ window.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('mouseup', () => {
             isDown = false;
             document.body.classList.remove('is-dragging');
-            // 드래그 후 마우스를 뗄 때 클릭이 발생하는 것을 막기 위해 0.05초 유지
             setTimeout(() => { window.isScrollingDrag = false; }, 50);
         });
 
@@ -279,10 +282,10 @@ window.addEventListener('DOMContentLoaded', () => {
             if (!isDown) return;
             e.preventDefault();
             const x = e.pageX - archiveContainer.offsetLeft;
-            const walk = (x - startX) * 1.5; // 드래그 속도 배율
+            const walk = (x - startX) * 1.5;
             
             if (Math.abs(walk) > 5) {
-                window.isScrollingDrag = true; // 5px 이상 움직이면 드래그로 간주
+                window.isScrollingDrag = true; 
             }
             archiveContainer.scrollLeft = scrollLeft - walk;
         });
@@ -549,6 +552,7 @@ window.addEventListener('DOMContentLoaded', () => {
         let wheelFrame = null;
 
         archiveContainer.addEventListener('wheel', (e) => {
+            if (window.innerWidth <= 768) return;
             if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
             if (Math.abs(e.deltaY) === 0) return;
 
@@ -570,6 +574,7 @@ window.addEventListener('DOMContentLoaded', () => {
         let scrollLeft;
 
         archiveContainer.addEventListener('mousedown', (e) => {
+            if (window.innerWidth <= 768) return;
             isDown = true;
             window.isScrollingDrag = false;
             document.body.classList.add('is-dragging');
@@ -598,20 +603,82 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-
-
-
 /* =========================================
-   Mobile Block Overlay
+   Archive Mobile Layout (Intersection Observer)
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
-    const mobileOverlay = document.createElement('div');
-    mobileOverlay.id = 'mobile-block-overlay';
+    const archiveContainer = document.querySelector('.archive');
+    const archiveItems = document.querySelectorAll('.archive-item');
+    if (!archiveContainer || !archiveItems.length) return;
 
-    mobileOverlay.innerHTML = `
-        <p>This website is not optimized for Mobile devices yet.<br><br>Please visit on your PC.</p>
-    `;
+    let observer;
+
+    const initMobileObserver = () => {
+        // 데스크탑 환경일 경우 Observer 해제 및 클래스 초기화
+        if (window.innerWidth > 768) {
+            if (observer) observer.disconnect();
+            archiveItems.forEach(item => item.classList.remove('is-center'));
+            return;
+        }
+
+        // 모바일 환경: 화면 중앙 20% 영역을 교차점으로 설정
+        const observerOptions = {
+            root: archiveContainer,
+            rootMargin: '0px -40% 0px -40%', 
+            threshold: 0
+        };
+
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-center');
+                } else {
+                    entry.target.classList.remove('is-center');
+                }
+            });
+        }, observerOptions);
+
+        archiveItems.forEach(item => observer.observe(item));
+    };
+
+    initMobileObserver();
+    window.addEventListener('resize', initMobileObserver);
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const lastUpdated = document.getElementById("last-updated");
     
-    document.body.appendChild(mobileOverlay);
+    // 1. 팩트 체크된 실제 스크롤 컨테이너 타겟팅
+    const scrollContainer = document.querySelector(".archive"); 
+    const infoButton = document.getElementById("info-link");
+    
+    if (!lastUpdated || !scrollContainer) return;
+
+    let isTicking = false;
+    
+    // 2. window가 아닌 scrollContainer(.archive)에 이벤트 바인딩
+    scrollContainer.addEventListener("scroll", () => { 
+        if (window.innerWidth > 768) return;
+
+        if (!isTicking) {
+            window.requestAnimationFrame(() => {
+                // 3. window.scrollY가 아닌 타겟 컨테이너의 scrollTop 속성으로 위치 계산
+                if (scrollContainer.scrollTop > 50) { 
+                    lastUpdated.classList.add("hide-on-scroll");
+                } else { 
+                    lastUpdated.classList.remove("hide-on-scroll");
+                }
+                isTicking = false;
+            });
+            isTicking = true;
+        }
+    }, { passive: true });
+
+    // Info 버튼 클릭 이벤트 유지
+    if (infoButton) {
+        infoButton.addEventListener("click", () => {
+            lastUpdated.classList.remove("hide-on-scroll");
+        });
+    }
 });
