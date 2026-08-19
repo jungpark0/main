@@ -596,9 +596,13 @@ document.addEventListener("DOMContentLoaded", () => {
             window.requestAnimationFrame(() => {
                 const currentY = window.scrollY;
                 const delta = currentY - lastScrollY;
+                const atBottom = (currentY + window.innerHeight) >= (document.documentElement.scrollHeight - 2);
 
                 // last-updated와 달리 맨 위가 아니어도, 위로 스크롤하는 순간 바로 다시 보이게 함
-                if (delta > 5) {
+                // 최하단에 도달했을 때도 아래로 스크롤 중이었더라도 다시 보이게 함
+                if (atBottom) {
+                    menu.classList.remove("hide-on-scroll");
+                } else if (delta > 5) {
                     menu.classList.add("hide-on-scroll");
                 } else if (delta < -5) {
                     menu.classList.remove("hide-on-scroll");
