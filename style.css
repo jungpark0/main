@@ -644,8 +644,9 @@ img, svg, a {
         top: 2.5rem;
     }
 
-    /* --- Index Page: 수직 배치 및 네이티브 스크롤 --- */
-    body:not(.archive-body) {
+    /* --- 수직 배치 및 네이티브 스크롤 (Index & Archive 공통) --- */
+    /* body 자체를 스크롤시켜야 iOS의 "상태바 탭 → 맨 위로" 기본 동작이 작동함 */
+    body {
         overflow-x: hidden;
         overflow-y: auto !important;
         overscroll-behavior-y: auto !important;
@@ -660,18 +661,13 @@ img, svg, a {
         display: none;
     }
 
-    /* --- Archive Page: CSS Scroll Snap --- */
-    .archive-body {
-        overflow: hidden !important; /* Body 자체의 전체 스크롤을 완벽히 차단 */
-    }
-
     .archive {
         display: flex;
         gap: 1.5rem;
         flex-direction: column;
-        overflow-y: auto !important;
+        height: auto; /* 데스크탑용 height: 100dvh를 해제해 콘텐츠 높이만큼 body가 스크롤되게 함 */
         align-items: center;
-        padding-top: 3rem;
+        padding-top: 2.5rem;
         padding-bottom: 3rem;
     }
 
@@ -706,9 +702,5 @@ img, svg, a {
     }
     #media-popup-content > iframe {
         aspect-ratio: 1 / 1; 
-    }
-
-    .year {
-        display: none;
     }
 }

@@ -290,15 +290,14 @@ window.addEventListener('DOMContentLoaded', () => {
             archiveContainer.scrollLeft = scrollLeft - walk;
         });
 
-        // 4. 모바일: 상단 헤더를 탭하면 목록 맨 위로 스크롤
-        // (iOS Safari의 "상태바 탭 → 맨 위로" 기능은 body/window 스크롤에만 적용되고,
-        //  body를 overflow:hidden으로 막고 대신 스크롤시키는 .archive 같은 내부 컨테이너에는 적용되지 않음)
+        // 4. 모바일: 상단 헤더를 탭하면 페이지 맨 위로 스크롤
+        // (iOS는 상태바를 탭하면 자동으로 맨 위로 가지만, Android 등에는 그런 기능이 없어 보조로 제공)
         const archiveHeader = document.querySelector('.archive-body header');
         if (archiveHeader) {
             archiveHeader.addEventListener('click', (e) => {
                 if (window.innerWidth > 768) return;
                 if (e.target.closest('a')) return;
-                archiveContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
     }
@@ -519,9 +518,10 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         // 모바일 환경: 화면 중앙 20% 영역을 교차점으로 설정
+        // (body가 직접 스크롤되므로 root는 브라우저 뷰포트(null) 기준)
         const observerOptions = {
-            root: archiveContainer,
-            rootMargin: '0px -40% 0px -40%', 
+            root: null,
+            rootMargin: '0px -40% 0px -40%',
             threshold: 0
         };
 
@@ -545,25 +545,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const lastUpdated = document.getElementById("last-updated");
-    
-    // 1. 팩트 체크된 실제 스크롤 컨테이너 타겟팅
-    const scrollContainer = document.querySelector(".archive"); 
+
+    // archive 페이지에서만 동작하도록 존재 여부만 체크 (스크롤은 body 기준)
+    const scrollContainer = document.querySelector(".archive");
     const infoButton = document.getElementById("info-link");
-    
+
     if (!lastUpdated || !scrollContainer) return;
 
     let isTicking = false;
-    
-    // 2. window가 아닌 scrollContainer(.archive)에 이벤트 바인딩
-    scrollContainer.addEventListener("scroll", () => { 
+
+    // body가 직접 스크롤되므로 window의 scroll 이벤트를 사용
+    window.addEventListener("scroll", () => {
         if (window.innerWidth > 768) return;
 
         if (!isTicking) {
             window.requestAnimationFrame(() => {
-                // 3. window.scrollY가 아닌 타겟 컨테이너의 scrollTop 속성으로 위치 계산
-                if (scrollContainer.scrollTop > 50) { 
+                if (window.scrollY > 50) {
                     lastUpdated.classList.add("hide-on-scroll");
-                } else { 
+                } else {
                     lastUpdated.classList.remove("hide-on-scroll");
                 }
                 isTicking = false;
