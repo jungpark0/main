@@ -109,7 +109,7 @@ menu div {
    ========================================= */
 /* 아카이브 페이지에서는 인덱스용 1초 애니메이션(transition)을 제거하여 스크롤에 즉각 반응하게 만듭니다 */
 .archive-body header .div-flex > p {
-    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), width 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), width 1s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease, color 0.3s ease;
     position: relative;
     z-index: 10;
 }
@@ -121,18 +121,18 @@ a, header p, .content p, #cursor-log, #live-time, #last-updated, .archive-info p
     transition: opacity 0.3s ease, color 0.3s ease;
 }
 
-body:has(menu a:hover) menu a,
+body:has(menu div:hover) menu a,
 body.is-loading menu a {
     opacity: 0.2; 
 }
-body:has(menu a:hover) menu a:hover {
+body:has(menu div:hover) menu a:hover {
     opacity: 1;
 }
 
-body:has(menu a:hover) header p:not(#live-time, #last-updated),
-body:has(menu a:hover) .content p,
-body:has(menu a:hover) .archive-info p,
-body:has(menu a:hover) .info-text-box p,
+body:has(menu div:hover) header p:not(#live-time, #last-updated),
+body:has(menu div:hover) .content p,
+body:has(menu div:hover) .archive-info p,
+body:has(menu div:hover) .info-text-box p,
 body.is-loading header p:not(#live-time, #last-updated),
 body.is-loading .content p,
 body.is-loading .archive-info p,
@@ -140,9 +140,9 @@ body.is-loading .info-text-box p {
     opacity: 0.15;
 }
 
-body:has(menu a:hover) #live-time,
-body:has(menu a:hover) #cursor-log,
-body:has(menu a:hover) #last-updated,
+body:has(menu div:hover) #live-time,
+body:has(menu div:hover) #cursor-log,
+body:has(menu div:hover) #last-updated,
 body.is-loading #cursor-log {
     color: black;
 }
@@ -305,7 +305,7 @@ button,
     position: absolute;
     left: 0%;
     transform: translateX(0%);
-    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease, color 0.3s ease;
     white-space: nowrap;
 }
 
@@ -640,14 +640,14 @@ img, svg, a {
         pointer-events: none;
     }
 
-    body:has(menu a:hover) header p:not(#live-time, #last-updated),
-    body:has(menu a:hover) .info-text-box p,
+    body:has(menu div:hover) header p:not(#live-time, #last-updated),
+    body:has(menu div:hover) .info-text-box p,
     body.is-loading .info-text-box p {
         opacity: 1;
     }
 
-    body:has(menu a:hover) #live-time,
-    body:has(menu a:hover) #last-updated {
+    body:has(menu div:hover) #live-time,
+    body:has(menu div:hover) #last-updated {
         color: darkgray;
     }
     .info-text-box {
