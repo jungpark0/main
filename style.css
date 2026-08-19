@@ -396,6 +396,8 @@ body.show-hanja .div-flex > .div-flex1 {
 .span-3 { grid-column: auto / span 3; }
 .span-4 { grid-column: auto / span 4; }
 .span-5 { grid-column: auto / span 5; }
+.span-6 { grid-column: auto / span 6; }
+.span-7 { grid-column: auto / span 7; }
 .span-8 { grid-column: auto / span 8; }
 
 /* =========================================
