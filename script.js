@@ -289,6 +289,18 @@ window.addEventListener('DOMContentLoaded', () => {
             }
             archiveContainer.scrollLeft = scrollLeft - walk;
         });
+
+        // 4. 모바일: 상단 헤더를 탭하면 목록 맨 위로 스크롤
+        // (iOS Safari의 "상태바 탭 → 맨 위로" 기능은 body/window 스크롤에만 적용되고,
+        //  body를 overflow:hidden으로 막고 대신 스크롤시키는 .archive 같은 내부 컨테이너에는 적용되지 않음)
+        const archiveHeader = document.querySelector('.archive-body header');
+        if (archiveHeader) {
+            archiveHeader.addEventListener('click', (e) => {
+                if (window.innerWidth > 768) return;
+                if (e.target.closest('a')) return;
+                archiveContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
     }
 });
 
