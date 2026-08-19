@@ -376,6 +376,14 @@ body.show-hanja .div-flex > .div-flex1 {
 .archive-item {
     display: flex;
     flex-direction: column;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    transform-origin: center center;
+    transform: scale(0.7); /* 기본값 = 화면 밖(또는 아직 판정 전) 상태, grid-column span은 그대로 유지 */
+}
+
+/* 데스크탑: 가로 스크롤 뷰 안에 들어온 아이템만 원래 크기로 확대 */
+.archive-item.is-in-view {
+    transform: scale(1);
 }
 
 .archive-item img {

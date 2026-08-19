@@ -500,19 +500,22 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   Archive Mobile Layout (Intersection Observer)
+   Archive Layout (Intersection Observer)
+   - 모바일: 화면 중앙에 온 아이템만 확대(is-center)
+   - 데스크탑: 가로 스크롤 뷰 안에 들어온 아이템만 확대(is-in-view), 접속 시에도 동일하게 작았다가 커짐
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     const archiveContainer = document.querySelector('.archive');
     const archiveItems = document.querySelectorAll('.archive-item');
     if (!archiveContainer || !archiveItems.length) return;
 
-    let observer;
+    let mobileObserver;
+    let desktopObserver;
 
     const initMobileObserver = () => {
         // 데스크탑 환경일 경우 Observer 해제 및 클래스 초기화
         if (window.innerWidth > 768) {
-            if (observer) observer.disconnect();
+            if (mobileObserver) mobileObserver.disconnect();
             archiveItems.forEach(item => item.classList.remove('is-center'));
             return;
         }
@@ -525,7 +528,7 @@ window.addEventListener('DOMContentLoaded', () => {
             threshold: 0
         };
 
-        observer = new IntersectionObserver((entries) => {
+        mobileObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-center');
@@ -535,11 +538,45 @@ window.addEventListener('DOMContentLoaded', () => {
             });
         }, observerOptions);
 
-        archiveItems.forEach(item => observer.observe(item));
+        archiveItems.forEach(item => mobileObserver.observe(item));
+    };
+
+    const initDesktopObserver = () => {
+        // 모바일 환경일 경우 Observer 해제 및 클래스 초기화
+        if (window.innerWidth <= 768) {
+            if (desktopObserver) desktopObserver.disconnect();
+            archiveItems.forEach(item => item.classList.remove('is-in-view'));
+            return;
+        }
+
+        // 데스크탑 환경: .archive의 가로 스크롤 뷰 기준으로 화면 안/밖 판정
+        // 모든 아이템이 기본적으로 축소 상태에서 시작하므로, 접속 직후 화면 안에 있는 아이템도
+        // Observer가 처음 걸리는 순간 is-in-view가 붙으며 커지는 애니메이션이 자연스럽게 재생됨
+        const observerOptions = {
+            root: archiveContainer,
+            rootMargin: '0px',
+            threshold: 0
+        };
+
+        desktopObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-in-view');
+                } else {
+                    entry.target.classList.remove('is-in-view');
+                }
+            });
+        }, observerOptions);
+
+        archiveItems.forEach(item => desktopObserver.observe(item));
     };
 
     initMobileObserver();
-    window.addEventListener('resize', initMobileObserver);
+    initDesktopObserver();
+    window.addEventListener('resize', () => {
+        initMobileObserver();
+        initDesktopObserver();
+    });
 });
 
 
