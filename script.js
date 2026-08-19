@@ -578,3 +578,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+/* =========================================
+   Mobile: Hide/Show <menu> by Scroll Direction
+   ========================================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const menu = document.querySelector("menu");
+    if (!menu) return;
+
+    let lastScrollY = window.scrollY;
+    let isTicking = false;
+
+    window.addEventListener("scroll", () => {
+        if (window.innerWidth > 768) return;
+
+        if (!isTicking) {
+            window.requestAnimationFrame(() => {
+                const currentY = window.scrollY;
+                const delta = currentY - lastScrollY;
+
+                // last-updated와 달리 맨 위가 아니어도, 위로 스크롤하는 순간 바로 다시 보이게 함
+                if (delta > 5) {
+                    menu.classList.add("hide-on-scroll");
+                } else if (delta < -5) {
+                    menu.classList.remove("hide-on-scroll");
+                }
+
+                lastScrollY = currentY;
+                isTicking = false;
+            });
+            isTicking = true;
+        }
+    }, { passive: true });
+});

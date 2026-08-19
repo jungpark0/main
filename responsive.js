@@ -241,7 +241,8 @@ function drawResponsiveJUNG() {
     const skipBtn = document.getElementById('skip-btn');
 
     // ★ 변경 1: 처음 방문(!isReturnVisit)일 때만 전체 애니메이션을 실행합니다.
-    if (!isAnimated && !isReturnVisit) {
+    // (모바일은 JUNG 그래픽 자체가 안 보이므로 애니메이션 없이 즉시 마무리 상태로 처리)
+    if (!isAnimated && !isReturnVisit && window.innerWidth > 768) {
         
         // 처음 방문이므로 스킵 버튼은 숨깁니다. (스킵 로직 제거)
         if (skipBtn) {

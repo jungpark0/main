@@ -117,7 +117,7 @@ menu div {
 /* =========================================
    Hover & Loading Fade Effect (Global)
    ========================================= */
-a, header p, .content p, #cursor-log, .archive-info p, .info-text-box p {
+a, header p, .content p, #cursor-log, #live-time, #last-updated, .archive-info p, .info-text-box p {
     transition: opacity 0.3s ease, color 0.3s ease;
 }
 
@@ -628,6 +628,16 @@ img, svg, a {
     #last-updated.hide-on-scroll {
         opacity: 0;
         pointer-events: none; /* 투명해졌을 때 클릭되는 것을 방지 */
+    }
+
+    menu {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    menu.hide-on-scroll {
+        opacity: 0;
+        pointer-events: none;
     }
 
     body:has(menu a:hover) header p:not(#live-time, #last-updated),
