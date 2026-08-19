@@ -6,6 +6,7 @@ html body {
     padding: 5px;
     font-family: "Google Sans", sans-serif;
     line-height: 1.35;
+    font-weight: 400;
     background-color: rgb(250, 250, 250);
     min-height: 100dvh;
     overflow-y: hidden;
@@ -389,6 +390,14 @@ body.show-hanja .div-flex > .div-flex1 {
     color: darkgray;
 }
 
+/* Archive item widths (grid-column span) */
+.span-1 { grid-column: auto / span 1; }
+.span-2 { grid-column: auto / span 2; }
+.span-3 { grid-column: auto / span 3; }
+.span-4 { grid-column: auto / span 4; }
+.span-5 { grid-column: auto / span 5; }
+.span-8 { grid-column: auto / span 8; }
+
 /* =========================================
    Media Popup Styles
    ========================================= */
@@ -497,8 +506,8 @@ body.show-hanja .div-flex > .div-flex1 {
 #media-popup-content > img:not(.popup-gallery img),
 #media-popup-content > video,
 #media-popup-content > iframe {
-    max-width: 90vw;
-    max-height: 80vh;
+    max-width: 90vw !important;
+    max-height: 80vh !important;
     object-fit: contain;
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     cursor: default;
@@ -699,4 +708,7 @@ img, svg, a {
         aspect-ratio: 1 / 1; 
     }
 
+    .year {
+        display: none;
+    }
 }
