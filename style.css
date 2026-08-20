@@ -359,7 +359,7 @@ body.show-hanja .div-flex > .div-flex1 {
     column-gap: 10px;
     overflow-x: auto;
     width: 100%;
-    height: 100dvh;
+    height: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: none; 
     scroll-snap-type: none !important;
