@@ -686,18 +686,15 @@ img, svg, a {
         display: none;
     }
 
-    /* --stable-vh는 JS가 페이지 로드 시점의 실제 높이를 한 번만 재서 고정해둔 값 (responsive.js 참고).
-       dvh처럼 스크롤 중 주소창 애니메이션에 반응해 실시간으로 바뀌지 않아 흔들림이 없고,
-       기기마다 실제 측정값이라 svh처럼 기기별로 비율이 들쭉날쭉하지도 않음 */
     .graphic-hanja {
         position: absolute;
         left: calc(5px + 1.1rem);
-        height: calc(var(--stable-vh, 100vh) * 1.2 - 10px - 2.2rem);
+        height: calc(var(--stable-vh, 100vh) * 1.3 - 10px - 2.2rem);
         transform: translateX(0);
     }
 
     body:not(.archive-body) {
-        min-height: calc(var(--stable-vh, 100vh) * 1.2);
+        min-height: calc(var(--stable-vh, 100vh) * 1.3);
     }
 
     .archive {
