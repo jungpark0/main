@@ -688,22 +688,29 @@ img, svg, a {
         display: none;
     }
 
+    /* 모바일 인덱스: HANJA 그래픽을 화면 가득 채우는 기본 비주얼로 노출 (슬라이드 대기 위치 대신 바로 보이는 위치로) */
+    /* position을 fixed(뷰포트 고정) 대신 absolute(문서 기준)로 바꿔서 페이지와 함께 스크롤되게 함 */
+    /* dvh는 스크롤 중 주소창이 늘어났다 줄었다 할 때마다 실시간으로 값이 바뀌어서
+       HANJA가 매번 다시 그려지며 어지럽게 흔들림. svh(작은 뷰포트 기준, 주소창이 떠 있는
+       상태 기준이라 항상 고정값)를 써서 스크롤 중에도 크기가 절대 변하지 않게 함 */
     .graphic-hanja {
         position: absolute;
         left: calc(5px + 1.1rem);
-        height: calc(120dvh - 10px - 2.2rem);
+        height: calc(100svh + 20svh - 10px - 2.2rem);
         transform: translateX(0);
     }
 
+    /* 인덱스가 정확히 100svh만큼만 있으면 스크롤할 게 없어서 주소창이 계속 떠 있어 실제 화면이 더 좁아 보임.
+       살짝 더 스크롤 여유를 줘서 주소창이 스크롤 시 자동으로 숨겨지게 함 */
     body:not(.archive-body) {
-        min-height: calc(120dvh);
+        min-height: calc(100svh + 20svh);
     }
 
     .archive {
         display: flex;
         gap: 1.5rem;
         flex-direction: column;
-        height: auto; 
+        height: auto; /* 데스크탑용 height: 100dvh를 해제해 콘텐츠 높이만큼 body가 스크롤되게 함 */
         align-items: center;
         padding-top: 2.5rem;
         padding-bottom: 3rem;
