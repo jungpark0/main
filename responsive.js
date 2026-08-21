@@ -952,7 +952,7 @@ function easeInOutQuad(t) {
 
 function animateHanjaWeight() {
     if (Math.abs(targetHanjaWeight - hanjaWeight) > 0.001) {
-        const hanjaLerpRate = window.innerWidth <= 768 ? 0.03 : 0.025;
+        const hanjaLerpRate = window.innerWidth <= 768 ? 0.04 : 0.025;
         hanjaWeight += (targetHanjaWeight - hanjaWeight) * hanjaLerpRate;
         drawResponsiveHANJA(easeInOutQuad(hanjaWeight));
         hanjaAnimId = requestAnimationFrame(animateHanjaWeight);
