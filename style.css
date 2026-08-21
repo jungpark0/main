@@ -689,9 +689,17 @@ img, svg, a {
     }
 
     /* 모바일 인덱스: HANJA 그래픽을 화면 가득 채우는 기본 비주얼로 노출 (슬라이드 대기 위치 대신 바로 보이는 위치로) */
+    /* position을 fixed(뷰포트 고정) 대신 absolute(문서 기준)로 바꿔서 페이지와 함께 스크롤되게 함 */
     .graphic-hanja {
+        position: absolute;
         left: calc(5px + 1.1rem);
         transform: translateX(0);
+    }
+
+    /* 인덱스가 정확히 100dvh만큼만 있으면 스크롤할 게 없어서 주소창이 계속 떠 있어 실제 화면이 더 좁아 보임.
+       살짝 더 스크롤 여유를 줘서 주소창이 스크롤 시 자동으로 숨겨지게 함 */
+    body:not(.archive-body) {
+        min-height: calc(100dvh + 15vh);
     }
 
     .archive {
