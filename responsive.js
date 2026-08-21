@@ -585,9 +585,12 @@ const parkPath2 = document.querySelector('.park-path2');
 const parkPath3 = document.querySelector('.park-path3');
 const parkPath4 = document.querySelector('.park-path4');
 const parkPath5 = document.querySelector('.park-path5');
+const hanjaDot = document.querySelector('.hanja-dot'); // 모바일 상하 배치에서만 사용하는 오른쪽 하단 점
 
-let hanjaWeight = 0; 
-let targetHanjaWeight = 0;
+// 모바일은 클릭 전/후 모습을 서로 바꿔서, 데스크탑 클릭 후(FAT) 상태가 처음부터 보이게 함
+const hanjaMobileDefault = window.innerWidth <= 768 ? 1 : 0;
+let hanjaWeight = hanjaMobileDefault;
+let targetHanjaWeight = hanjaMobileDefault;
 let hanjaAnimId = null;
 
 const lerp = (start, end, t) => start + (end - start) * t;
@@ -600,11 +603,24 @@ function drawResponsiveHANJA(w_anim = hanjaWeight) {
     hanjaSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
     const remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const strokeOffset = 1.1 * remToPx; 
+    const strokeOffset = 1.1 * remToPx;
     const baseS = 2 * strokeOffset; // 기본 선 두께 (2.2rem)
     const gap = 5;
-    const centerGap = baseS + gap; 
+    const centerGap = baseS + gap;
 
+    // 모바일(세로 화면)은 정/박을 좌우가 아니라 상하로 배치
+    if (window.innerWidth <= 768) {
+        drawHanjaStacked(w, h, w_anim, strokeOffset, baseS, gap, centerGap);
+    } else {
+        if (hanjaDot) hanjaDot.style.display = 'none'; // 점은 모바일 상하 배치 전용
+        drawHanjaSideBySide(w, h, w_anim, strokeOffset, baseS, gap, centerGap);
+    }
+}
+
+/* =========================================
+    7-1. HANJA Layout - 데스크탑 (좌: 정 / 우: 박)
+    ========================================= */
+function drawHanjaSideBySide(w, h, w_anim, strokeOffset, baseS, gap, centerGap) {
     const halfW = w / 2;
     const halfH = h / 2;
     const jW = halfW - (centerGap / 2);
@@ -737,10 +753,184 @@ function drawResponsiveHANJA(w_anim = hanjaWeight) {
     parkPath5.setAttribute('d', `M ${px4},${y3_top} L ${px5_end},${y3_top}`);
 
     // 단일 두께 S 일괄 적용
-    [jungPath1, jungPath2, jungPath3, jungPath4, jungPath5, 
+    [jungPath1, jungPath2, jungPath3, jungPath4, jungPath5,
      parkPath1, parkPath2, parkPath3, parkPath4, parkPath5].forEach(p => {
         p.style.strokeWidth = `${S}px`;
     });
+}
+
+/* =========================================
+    7-2. HANJA Layout - 모바일 (위: 정 / 아래: 박)
+    데스크탑 버전과 동일한 로직이되, 폭/높이의 역할을 맞바꿔서
+    "가로 절반씩 나눠쓰기"를 "세로 절반씩 나눠쓰기"로 바꾼 버전
+    ========================================= */
+function drawHanjaStacked(w, h, w_anim, strokeOffset, baseS, gap, centerGap) {
+    const halfH = h / 2;
+    const qH = halfH / 2; // 정/박 각자 내부 구조의 중간 지점 (데스크탑의 halfH 역할)
+
+    const jUnitX = w / 50;      // 정의 가로 유닛 (데스크탑 unitX, halfW → w)
+    const unitY = halfH / 100;  // 정의 세로 유닛 (데스크탑 unitY, h → halfH)
+    const pUnitX = w / 100;     // 박의 가로 유닛 (데스크탑 pUnitX, pW → w)
+
+    // 좌우는 정/박이 공유(전체 너비), 위아래는 절반씩 나눠 가짐
+    const vLeft = -strokeOffset;
+    const vRight = w + strokeOffset;
+    const jTop = -strokeOffset;        // 정의 위쪽 한계 (화면 맨 위)
+
+    /* FAT STROKE 최대치 계산 (halfW → w, halfH → qH) */
+    const S_max_T = (qH + strokeOffset - 17.5) / 4;
+    const S_max_B = (qH + strokeOffset - 12.5) / 3;
+    const S_max_JX = (w + strokeOffset - 7.5) / 2;
+    const S_max_PX = (w + strokeOffset - 17.5) / 4;
+
+    const S_FAT = Math.min(S_max_T, S_max_B, S_max_JX, S_max_PX);
+    const baseS_mobile = baseS / 1.3; //
+    const S = lerp(baseS_mobile, S_FAT, w_anim);
+
+    // NORMAL 상태의 획 두께를 절반으로 줄였으므로, 그 두께 기준으로 붙어있는 획들의
+    // 간격 단위(centerGap)도 절반 두께 기준으로 다시 계산 - 안 그러면 클릭 전/후 간격이 달라짐
+    const centerGap_mobile = baseS_mobile + gap;
+
+    // 데스크탑 원본은 baseS === 2*strokeOffset이라 "0"이 곧 벽에 딱 맞는 값이었지만,
+    // 모바일은 NORMAL 두께를 절반(baseS_mobile)으로 줄이면서 이 우연한 등식이 깨졌음.
+    // 그래서 벽에 닿아야 하는 끝은 항상 명시적으로 (벽 위치 ± 두께/2)로 계산해야 클릭 전/후 여백이 같아짐
+    const n_wallGap = baseS_mobile / 2;
+
+    /* 0% NORMAL 좌표 - 정 (위쪽 절반) */
+    // jy1(jungPath1)은 jx_L/px1처럼 벽에 딱 붙어야 함(여백 없이). jy2/jy3_top은 jy1 기준
+    // 상대값으로 사슬처럼 연결해서, jy1 위치가 바뀌어도 그 뒤 5px 간격은 그대로 유지되게 함
+    const n_jy1 = jTop + n_wallGap;
+    const n_jy2 = n_jy1 + centerGap_mobile;
+    const n_jy3_top = n_jy1 + 2 * centerGap_mobile;
+    const n_jy3_bot = qH - centerGap_mobile / 2;
+    const n_jy4 = qH + centerGap_mobile / 2;
+    const n_jy5 = n_jy4 + centerGap_mobile;
+
+    const n_jx_L = vLeft + n_wallGap;
+    const n_jx_R = vRight - n_wallGap;
+    const n_jx_Mid = 25 * jUnitX;
+
+    // j5_L(jungPath5 왼쪽 시작점)도 jx_L(jungPath4 왼쪽 세로획)과 5px 간격이어야 하므로
+    // 독립적인 centerGap_mobile 대신 jx_L 기준 상대값으로 계산
+    const n_j5_L = n_jx_L + centerGap_mobile;
+    const n_j5_R = 50 * jUnitX - centerGap_mobile + strokeOffset;
+
+    /* 0% NORMAL 좌표 - 박 (아래쪽 절반, X는 정과 동일 범위 공유) */
+    const n_px1 = vLeft + n_wallGap;
+    const n_px2 = 35 * pUnitX;
+    const n_px3 = 70 * pUnitX;
+    const n_px4 = n_px3 + centerGap_mobile;
+    const n_px5_end = vRight - n_wallGap;
+
+    /* 100% FAT 좌표 - 정 */
+    const f_jy1 = jTop + S_FAT / 2;
+    const f_jy2 = f_jy1 + S_FAT + gap;
+    const f_jy3_top = f_jy2 + S_FAT + gap;
+    const f_jy3_bot = (qH - 2.5) - S_FAT / 2;
+
+    const f_jy4 = (qH + 2.5) + S_FAT / 2;
+    const f_jy5 = f_jy4 + S_FAT + gap;
+
+    // 정/박 경계(halfH)에서 만나는 두 끝: stroke-linecap:square가 끝을 stroke폭/2만큼
+    // 더 튀어나오게 그리므로, 그만큼(S_FAT/2)을 미리 안쪽으로 당겨서 서로 겹치지 않게 함
+    const n_j_hookbot = halfH - centerGap_mobile / 2; // 정 쪽 여유(NORMAL)
+    const f_j_hookbot = (halfH - 2.5) - S_FAT / 2; // 정 쪽 여유(FAT)
+    const n_p_top = halfH + centerGap_mobile / 2; // 박 쪽 여유(NORMAL)
+    const f_p_top = (halfH + 2.5) + S_FAT / 2; // 박 쪽 여유(FAT)
+
+    // 박의 진짜 아래쪽 한계(화면 맨 아래) - 정의 jTop과 대칭되는 캔버스 끝, halfH 경계와는 무관
+    const pBot = h + strokeOffset;
+    const n_p_hookbot = pBot - n_wallGap;
+    const f_p_hookbot = pBot - S_FAT / 2;
+
+    const f_jx_L = vLeft + S_FAT / 2;
+    const f_jx_R = vRight - S_FAT / 2; // 정도 박처럼 화면 오른쪽 벽까지 닿아야 함 (센터 분할 기준이던 desktop식 -2.5 여백 제거)
+    const f_jx_Mid = (f_jx_L + f_jx_R) / 2;
+
+    const f_j5_L = f_jx_L + S_FAT + gap;
+    const f_j5_R = f_jx_R - S_FAT / 2 - gap;
+
+    /* 100% FAT 좌표 - 박 */
+    const f_px1 = vLeft + S_FAT / 2;
+    const f_px2 = f_px1 + S_FAT + gap;
+    const f_px3 = f_px2 + S_FAT + gap;
+    const f_px4 = f_px3 + S_FAT + gap;
+    const f_px5_end = vRight - S_FAT / 2;
+
+    /* 실시간 보간 - 정 */
+    const jy1 = lerp(n_jy1, f_jy1, w_anim);
+    const jy2 = lerp(n_jy2, f_jy2, w_anim);
+    const jy3_top = lerp(n_jy3_top, f_jy3_top, w_anim);
+    const jy3_bot = lerp(n_jy3_bot, f_jy3_bot, w_anim);
+    const jy4 = lerp(n_jy4, f_jy4, w_anim);
+    const jy5 = lerp(n_jy5, f_jy5, w_anim);
+    const j_hookbot = lerp(n_j_hookbot, f_j_hookbot, w_anim);
+    const p_top = lerp(n_p_top, f_p_top, w_anim);
+    const p_hookbot = lerp(n_p_hookbot, f_p_hookbot, w_anim);
+
+    const jx_L = lerp(n_jx_L, f_jx_L, w_anim);
+    const jx_R = lerp(n_jx_R, f_jx_R, w_anim);
+    const jx_Mid = lerp(n_jx_Mid, f_jx_Mid, w_anim);
+
+    const j5_L = lerp(n_j5_L, f_j5_L, w_anim);
+    const j5_R = lerp(n_j5_R, f_j5_R, w_anim);
+
+    /* 실시간 보간 - 박 */
+    const px1 = lerp(n_px1, f_px1, w_anim);
+    const px2 = lerp(n_px2, f_px2, w_anim);
+    const px3 = lerp(n_px3, f_px3, w_anim);
+    const px4 = lerp(n_px4, f_px4, w_anim);
+    const px5_end = lerp(n_px5_end, f_px5_end, w_anim);
+
+    /* ================================================
+       도면 렌더링
+       ================================================ */
+    // [정] - 위쪽 절반
+    // 클릭 후(FAT) jungPath1의 가로 너비 = jungPath5에서 가장 긴 가로 획(j5_L~j5_R)의 시각적 너비.
+    // jungPath1은 독립된 path라 양끝 다 square cap이 붙어 좌표 길이+S만큼 보이지만,
+    // jungPath5의 j5_L~j5_R 구간은 j5_L(진짜 시작점)만 cap이고 j5_R은 꺾이는 지점(join)이라 cap이 안 붙음.
+    // 그래서 "같은 좌표 길이"가 아니라 "같은 시각적 길이"가 되도록 S_FAT/2만큼 보정
+    const f_j1_targetWidth = (f_j5_R - f_j5_L) - S_FAT / 2;
+    const f_j1_halfW = f_j1_targetWidth / 2;
+    const j1_L = lerp(15 * jUnitX, f_jx_Mid - f_j1_halfW, w_anim);
+    const j1_R = lerp(35 * jUnitX, f_jx_Mid + f_j1_halfW, w_anim);
+    jungPath1.setAttribute('d', `M ${j1_L},${jy1} L ${j1_R},${jy1}`);
+    jungPath2.setAttribute('d', `M ${jx_L},${jy2} L ${jx_R},${jy2}`);
+    jungPath3.setAttribute('d', `M ${jx_L},${jy3_top} L ${jx_R},${jy3_top} L ${jx_R},${jy3_bot} L ${jx_L},${jy3_bot} Z`);
+
+    const j4_leg = lerp(n_jy4 + 25 * unitY, f_j_hookbot, w_anim);
+    jungPath4.setAttribute('d', `M ${jx_L},${j4_leg} L ${jx_L},${jy4} L ${jx_R},${jy4} L ${jx_R},${j4_leg}`);
+
+    const hook_w = lerp(15 * jUnitX, S_FAT + gap, w_anim);
+    const hook_top = lerp(halfH - 25 * unitY, f_jy5 + S_FAT + gap, w_anim);
+    jungPath5.setAttribute('d', `M ${j5_L},${jy5} L ${j5_R},${jy5} L ${jx_Mid},${jy5} L ${jx_Mid},${j_hookbot} L ${jx_Mid - hook_w},${j_hookbot} L ${jx_Mid - hook_w},${hook_top}`);
+
+    // [박] - 아래쪽 절반. 위쪽(p_top)은 정과의 경계, 아래쪽(p_hookbot)은 화면 진짜 끝 - 서로 다른 기준이라 각각 계산
+    const park_yTop = p_top;
+    const park_yBot = p_hookbot;
+    const py3_top = jy3_top + halfH;
+
+    parkPath1.setAttribute('d', `M ${px1},${jy2 + halfH} L ${px3},${jy2 + halfH}`);
+    parkPath2.setAttribute('d', `M ${px2},${park_yTop} L ${px2},${park_yBot}`);
+    parkPath3.setAttribute('d', `M ${px1},${park_yBot} L ${px1},${py3_top} L ${px3},${py3_top} L ${px3},${park_yBot}`);
+    parkPath4.setAttribute('d', `M ${px4},${park_yTop} L ${px4},${park_yBot}`);
+    parkPath5.setAttribute('d', `M ${px4},${py3_top} L ${px5_end},${py3_top}`);
+
+    [jungPath1, jungPath2, jungPath3, jungPath4, jungPath5,
+     parkPath1, parkPath2, parkPath3, parkPath4, parkPath5].forEach(p => {
+        p.style.strokeWidth = `${S}px`;
+    });
+
+    // 오른쪽 하단 점 - 클릭 전엔 반지름 0(=안 보임)에서 시작해서, 다른 획들과 같은
+    // w_anim(=같은 템포/이징)을 타고 커지며 나타남. 다 커졌을 때 지름은 다른 획과 같은 S_FAT.
+    // 중심을 항상 (벽 - 반지름)로 잡아서, 커지는 동안에도 오른쪽·아래쪽 벽에 여백 없이 딱 붙어있음
+    if (hanjaDot) {
+        hanjaDot.style.display = 'block';
+        const dotR = lerp(0, S_FAT / 2, w_anim);
+        hanjaDot.setAttribute('cx', vRight - dotR);
+        hanjaDot.setAttribute('cy', pBot - dotR);
+        hanjaDot.setAttribute('r', dotR);
+    }
 }
 
 function easeInOutQuad(t) {
