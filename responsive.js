@@ -1,8 +1,10 @@
 /* =========================================
-    브라우저 기본 스와이프(뒤로가기) 방지
+    브라우저 기본 스와이프(뒤로가기) 방지 (데스크탑 전용)
    ========================================= */
-document.body.style.overscrollBehaviorX = 'none';
-document.body.style.overscrollBehaviorY = 'none';
+if (window.innerWidth > 768) {
+    document.body.style.overscrollBehaviorX = 'none';
+    document.body.style.overscrollBehaviorY = 'none';
+}
 
 /* =========================================
     3. Global Slide State & Scroll Control
