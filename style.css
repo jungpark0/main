@@ -689,12 +689,12 @@ img, svg, a {
     .graphic-hanja {
         position: absolute;
         left: calc(5px + 1.1rem);
-        height: calc(100svh + 30svh - 10px - 2.2rem);
+        height: calc(100svh + 32svh - 10px - 2.2rem);
         transform: translateX(0);
     }
 
     body:not(.archive-body) {
-        min-height: calc(100svh + 30svh);
+        min-height: calc(100svh + 32svh);
     }
 
     .archive {
