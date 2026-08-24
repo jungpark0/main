@@ -7,17 +7,6 @@ if (window.innerWidth > 768) {
 }
 
 /* =========================================
-    모바일: 뷰포트 높이를 페이지 로드 시점 값으로 고정
-    (dvh는 스크롤로 주소창이 접혔다 펴질 때마다 값이 바뀌어서
-    HANJA가 매번 다시 계산되며 흔들림. 실제 높이를 한 번 측정해
-    CSS 변수로 고정해두고, 진짜 리사이즈(회전 등)일 때만 갱신함)
-   ========================================= */
-function setStableViewportHeight() {
-    document.documentElement.style.setProperty('--stable-vh', `${window.innerHeight}px`);
-}
-setStableViewportHeight();
-
-/* =========================================
     3. Global Slide State & Scroll Control
    ========================================= */
 let isIntroFinished = false; 
@@ -973,13 +962,7 @@ if (hanjaSvg) {
     });
 }
 
-let lastKnownWidth = window.innerWidth;
 window.addEventListener('resize', () => {
-    // 모바일 주소창이 스크롤에 반응해 접혔다 펴지면 높이만 바뀐 채 resize가 발생함.
-    // 실제 가로 폭이 바뀐 경우(회전, 창 크기 변경)에만 다시 계산해서 불필요한 흔들림을 막음.
-    if (window.innerWidth === lastKnownWidth) return;
-    lastKnownWidth = window.innerWidth;
-    setStableViewportHeight();
     drawResponsiveJUNG();
     drawResponsivePARK();
     drawResponsiveHANJA(hanjaWeight);
