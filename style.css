@@ -121,18 +121,18 @@ a, header p, .content p, #cursor-log, #live-time, #last-updated, .archive-info p
     transition: opacity 0.3s ease, color 0.3s ease;
 }
 
-body:has(menu div:hover) menu a,
+menu a.is-menu-dimmed,
 body.is-loading menu a {
-    opacity: 0.2; 
+    opacity: 0.2;
 }
-body:has(menu div:hover) menu a:hover {
+menu a.is-menu-dimmed:hover {
     opacity: 1;
 }
 
-body:has(menu div:hover) header p:not(#live-time, #last-updated),
-body:has(menu div:hover) .content p,
-body:has(menu div:hover) .archive-info p,
-body:has(menu div:hover) .info-text-box p,
+header p.is-menu-dimmed:not(#live-time, #last-updated),
+.content p.is-menu-dimmed,
+.archive-info p.is-menu-dimmed,
+.info-text-box p.is-menu-dimmed,
 body.is-loading header p:not(#live-time, #last-updated),
 body.is-loading .content p,
 body.is-loading .archive-info p,
@@ -140,9 +140,9 @@ body.is-loading .info-text-box p {
     opacity: 0.15;
 }
 
-body:has(menu div:hover) #live-time,
-body:has(menu div:hover) #cursor-log,
-body:has(menu div:hover) #last-updated,
+#live-time.is-menu-dimmed,
+#cursor-log.is-menu-dimmed,
+#last-updated.is-menu-dimmed,
 body.is-loading #cursor-log {
     color: black;
 }
@@ -415,40 +415,6 @@ body.show-hanja .div-flex > .div-flex1 {
 .span-8 { grid-column: auto / span 8; }
 
 /* =========================================
-   Media Popup Styles
-   ========================================= */
-.popup-flex-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* 하단 메뉴(z-index:999)보다 위로 올라오게 설정 */
-}
-
-#media-popup-content {
-    max-width: 90vw;
-    max-height: 90vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    /* 팝업 등장 시 콘텐츠가 살짝 커지며 나타나는 디테일 애니메이션 */
-    transform: scale(0.95);
-    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.info-overlay.is-active #media-popup-content {
-    transform: scale(1);
-}
-
-#media-popup-content img,
-#media-popup-content video {
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain; /* 비율이 깨지지 않고 화면 안에 딱 맞게 조정 */
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1); /* 사진이 살짝 떠보이도록 그림자 추가 */
-}
-
-/* =========================================
    Media Popup & Hover Overlay Styles
    ========================================= */
 
@@ -500,7 +466,7 @@ body.show-hanja .div-flex > .div-flex1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 1000; /* 하단 메뉴(z-index:999)보다 위로 올라오게 설정 */
 }
 
 #media-popup-content {
@@ -518,12 +484,16 @@ body.show-hanja .div-flex > .div-flex1 {
     transform: scale(1);
 }
 
-/* 단일 이미지 / 로컬 비디오 / 유튜브 팝업 공통 그림자 및 크기 설정 */
+/* 팝업 콘텐츠 크기 통일: 데스크탑은 세로 90vh에 맞추고 가로는 비율대로 자동,
+   모바일(768px 이하)은 아래 미디어 쿼리에서 가로 95vh 기준으로 뒤집음.
+   화면 밖으로 넘치지 않도록 반대 축에는 안전장치로 max-width/height를 같이 둠 */
 #media-popup-content > img:not(.popup-gallery img),
 #media-popup-content > video,
-#media-popup-content > iframe {
-    max-width: 90vw !important;
-    max-height: 80vh !important;
+#media-popup-content > iframe,
+.popup-gallery img {
+    height: 90vh;
+    width: auto;
+    max-width: 90vw;
     object-fit: contain;
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     cursor: default;
@@ -658,14 +628,14 @@ img, svg, a {
         pointer-events: none;
     }
 
-    body:has(menu div:hover) header p:not(#live-time, #last-updated),
-    body:has(menu div:hover) .info-text-box p,
+    body.is-menu-hovering header p:not(#live-time, #last-updated),
+    body.is-menu-hovering .info-text-box p,
     body.is-loading .info-text-box p {
         opacity: 1;
     }
 
-    body:has(menu div:hover) #live-time,
-    body:has(menu div:hover) #last-updated {
+    body.is-menu-hovering #live-time,
+    body.is-menu-hovering #last-updated {
         color: darkgray;
     }
     .info-text-box {
@@ -733,16 +703,19 @@ img, svg, a {
         transform: scale(0.5);
     }
 
+    /* 모바일은 데스크탑과 반대로 가로 95vh를 기준으로 맞추고 세로는 비율대로 자동 */
     #media-popup-content > img:not(.popup-gallery img),
     #media-popup-content > video,
-    #media-popup-content > iframe {
-        max-width: 100%;
-        max-height: 80vh;
+    #media-popup-content > iframe,
+    .popup-gallery img {
+        width: 95vh;
+        height: auto;
+        max-width: 95vw;
         object-fit: contain;
         box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         cursor: default;
     }
     #media-popup-content > iframe {
-        aspect-ratio: 1 / 1; 
+        aspect-ratio: 1 / 1;
     }
 }

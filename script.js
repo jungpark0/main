@@ -36,6 +36,31 @@ document.addEventListener('mousemove', (e) => {
 });
 
 /* =========================================
+    2-1. Menu Hover State
+    (사파리는 조상 요소(body)의 클래스 변화로 간접적으로 값이 바뀌는
+    요소는 opacity transition을 제대로 애니메이션하지 않는 경우가 있어서,
+    흐려져야 하는 요소들에 클래스를 직접 붙여줌)
+   ========================================= */
+const menuDiv = document.querySelector('menu div');
+const menuHoverDimTargets = document.querySelectorAll(
+    'menu a, header p:not(#live-time, #last-updated), .content p, .archive-info p, .info-text-box p, #live-time, #cursor-log, #last-updated'
+);
+if (menuDiv) {
+    menuDiv.addEventListener('mouseenter', () => {
+        // 사파리는 같은 프레임에서 클래스를 바로 추가하면 transition 없이 뚝 끊겨서 적용됨.
+        // 다른 팝업들과 동일하게 한 프레임 뒤로 미뤄서 트랜지션이 걸릴 틈을 줌
+        requestAnimationFrame(() => {
+            document.body.classList.add('is-menu-hovering');
+            menuHoverDimTargets.forEach(el => el.classList.add('is-menu-dimmed'));
+        });
+    });
+    menuDiv.addEventListener('mouseleave', () => {
+        document.body.classList.remove('is-menu-hovering');
+        menuHoverDimTargets.forEach(el => el.classList.remove('is-menu-dimmed'));
+    });
+}
+
+/* =========================================
     8. Last Updated Relative Time (Auto)
     ========================================= */
 const lastUpdatedElement = document.getElementById('last-updated');
