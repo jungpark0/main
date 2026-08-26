@@ -609,6 +609,21 @@ body.is-leaving-loading #last-updated {
     margin-right: 0;
 }
 
+/* 5. 다크 모드: 이미지 반전 (그리드 썸네일만. 팝업은 원본 그대로 보여줌) */
+.archive-item img {
+    transition: filter 0.3s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .archive-item img {
+        filter: invert(1);
+    }
+}
+
+:root[data-theme="dark"] .archive-item img {
+    filter: invert(1);
+}
+
 
 /* =============================================================
    MOBILE — 모바일 버전 (max-width: 768px)
