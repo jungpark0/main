@@ -1,5 +1,5 @@
 /* =========================================
-   Theme Colors (Light / Dark)
+   0. Theme Colors (Light / Dark)
    ========================================= */
 :root {
     --color-bg: rgb(250, 250, 250);
@@ -41,6 +41,12 @@
     --color-shadow: rgba(0, 0, 0, 0.5);
 }
 
+
+/* =============================================================
+   COMMON — 모든 페이지(index.html, archive.html)에서 공통으로 쓰임
+   ============================================================= */
+
+/* 1. Base & Reset */
 * {
     box-sizing: border-box !important;
 }
@@ -65,6 +71,15 @@ a:hover {
     font-style: italic;
 }
 
+/* 브라우저 기본 이미지/링크 고스트 드래그 방지 */
+img, svg, a {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
+
+/* 2. Header & Menu */
 header {
     position: sticky;
     left: 5px;
@@ -94,9 +109,57 @@ menu div {
     gap: 0.5rem;
 }
 
-/* =========================================
-   Info Overlay
-   ========================================= */
+/* 헤더 타이틀/시계 영역 레이아웃. index.html에서는 슬라이드가 바뀔 때
+   position:relative 기준으로 .div-flex > p / .div-flex1이 좌우로 스와이프됨
+   (아래 INDEX 섹션의 body.show-park/body.show-hanja 규칙 참고) */
+.div-flex {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+    min-height: 2.7em;
+    transition: width 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.div-flex1 {
+    gap: 0.5rem;
+}
+
+.div-flex > p {
+    position: absolute;
+    left: 0%;
+    transform: translateX(0%);
+    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+}
+
+.div-flex > .div-flex1 {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    left: 100%;
+    transform: translateX(-100%);
+    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    white-space: nowrap;
+}
+
+.content {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+#live-time,
+#cursor-log,
+#last-updated {
+    color: var(--color-text-dim);
+}
+
+#cursor-log {
+    text-align: right;
+}
+
+/* 3. Info Overlay & Media Popup 공통 셸
+   (배경 흐림 + 페이드 애니메이션은 Info 팝업과 Archive 미디어 팝업이 함께 씀) */
 .info-overlay {
     position: fixed;
     top: 0;
@@ -116,56 +179,8 @@ menu div {
     pointer-events: auto;
 }
 
-.info-text-box {
-    position: absolute;
-    top: 23px;
-    left: 5px;
-    font-size: 13px;
-    line-height: 1.35;
-}
-
-/* =========================================
-   Menu & Cursor Soft Background
-   ========================================= */
-.div-flex {
-    display: flex;
-    justify-content: space-between;
-    width: 60%;
-}
-.div-flex1 {
-    gap: 0.5rem;
-}
-
-.content,
-.archive {
-    font-size: 13px;
-    line-height: 1.35;
-}
-
-#live-time, 
-#cursor-log,
-#last-updated {
-    color: var(--color-text-dim);
-}
-
-#cursor-log {
-    text-align: right;
-}
-
-/* =========================================
-   Archive Page: Name Text Progress Bar
-   ========================================= */
-/* 스크롤에 따라 위치(transform)는 계속 따라가되, 애니메이션 없이 즉시 반응하게 함 */
-.archive-body header .div-flex > p {
-    transition: opacity 0.3s ease, color 0.3s ease;
-    position: relative;
-    z-index: 10;
-}
-
-/* =========================================
-   Hover & Loading Fade Effect (Global)
-   ========================================= */
-a, header p, .content p, #cursor-log, #live-time, #last-updated, .archive-info p, .info-text-box p {
+/* 4. 메뉴 호버 시 다른 요소 흐려짐 & 로딩 페이드 효과 */
+a, header p, .content p, #cursor-log, #live-time, #last-updated, .info-text-box p {
     transition: opacity 0.3s ease, color 0.3s ease;
 }
 
@@ -179,11 +194,9 @@ menu a.is-menu-dimmed:hover {
 
 header p.is-menu-dimmed:not(#live-time, #last-updated),
 .content p.is-menu-dimmed,
-.archive-info p.is-menu-dimmed,
 .info-text-box p.is-menu-dimmed,
 body.is-loading header p:not(#live-time, #last-updated),
 body.is-loading .content p,
-body.is-loading .archive-info p,
 body.is-loading .info-text-box p {
     opacity: 0.15;
 }
@@ -200,23 +213,19 @@ body.is-loading #last-updated {
     opacity: 0;
 }
 
-/* =========================================
-   Loading Fade Out Animation (1.5s Sync)
-   ========================================= */
-body.is-leaving-loading a,
-body.is-leaving-loading header p,
-body.is-leaving-loading .content p,
-body.is-leaving-loading .archive-info p,
-body.is-leaving-loading .info-text-box p,
-body.is-leaving-loading #cursor-log,
-body.is-leaving-loading #live-time,
-body.is-leaving-loading #last-updated {
-    transition: opacity 1.5s ease, color 1.5s ease !important;
+/* 5. 드래그 중 커서/선택 방지 (index 슬라이드 드래그, archive 스크롤 드래그 공통) */
+.is-dragging {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    cursor: grabbing !important;
 }
 
-/* =========================================
-   Graphic J, PARK, HANJA Sliding Layout
-   ========================================= */
+
+/* =============================================================
+   INDEX — JUNG / PARK / HANJA 인트로 슬라이드 (index.html 전용)
+   ============================================================= */
+
+/* 1. Graphic Sliding Layout (JUNG / PARK / HANJA 3화면 가로 슬라이드) */
 .graphic-j,
 .graphic-park,
 .graphic-hanja {
@@ -226,7 +235,7 @@ body.is-leaving-loading #last-updated {
     height: calc(100vh - 10px - 2.2rem);
     z-index: 1;
     pointer-events: none;
-    overflow: visible; 
+    overflow: visible;
     transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
@@ -236,35 +245,59 @@ body.is-leaving-loading #last-updated {
 }
 
 .graphic-park {
-    left: calc(100vw + 5px + 1.1rem); 
+    left: calc(100vw + 5px + 1.1rem);
     transform: translateX(0);
 }
 
 .graphic-hanja {
     /* 세 번째 화면은 200vw 밖에서 대기합니다 */
-    left: calc(200vw + 5px + 1.1rem); 
+    left: calc(200vw + 5px + 1.1rem);
     transform: translateX(0);
 }
 
-/* -----------------------------------------
-   Slide 2: PARK 화면 (-100vw 이동)
-   ----------------------------------------- */
+/* Slide 2: PARK 화면 (-100vw 이동) */
 body.show-park .graphic-j,
 body.show-park .graphic-park,
 body.show-park .graphic-hanja {
     transform: translateX(-100vw);
 }
 
-/* -----------------------------------------
-   Slide 3: HANJA 화면 (-200vw 이동)
-   ----------------------------------------- */
+/* Slide 3: HANJA 화면 (-200vw 이동) */
 body.show-hanja .graphic-j,
 body.show-hanja .graphic-park,
 body.show-hanja .graphic-hanja {
     transform: translateX(-200vw);
 }
 
-/* 한자 패스들의 기본 뼈대 (그리기 전 기본 설정) */
+/* 2. JUNG Typography Path */
+.j-path {
+    fill: none;
+    stroke: var(--color-stroke-bold);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+
+.u-path, .n-path, .g-path {
+    fill: none;
+    stroke: var(--color-stroke-bold);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    opacity: 0;
+}
+
+/* 3. PARK Typography Path */
+.p-path, .a-path, .r-path, .k-path {
+    fill: none;
+    stroke: var(--color-stroke-bold);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    opacity: 0;
+}
+
+/* 4. HANJA (亭 朴) 뼈대 & 강조 점 */
 .graphic-hanja path {
     fill: none;
     stroke: var(--color-stroke-soft);
@@ -279,29 +312,7 @@ body.show-hanja .graphic-hanja {
     display: none; /* 모바일 상하 배치일 때만 JS가 켜줌 */
 }
 
-.j-path {
-    fill: none; 
-    stroke: var(--color-stroke-bold);
-    stroke-width: 2.2rem;
-    stroke-linecap: square;
-    stroke-linejoin: miter;
-}
-
-/* =========================================
-   U, N, G Typography Paths
-   ========================================= */
-.u-path, .n-path, .g-path, .p-path, .a-path, .r-path, .k-path {
-    fill: none; 
-    stroke: var(--color-stroke-bold);
-    stroke-width: 2.2rem;
-    stroke-linecap: square;
-    stroke-linejoin: miter;
-    opacity: 0; 
-}
-
-/* =========================================
-   Button
-   ========================================= */
+/* 5. Skip / Scroll 버튼 */
 button,
 #scroll-direct {
     position: fixed;
@@ -320,61 +331,18 @@ button,
     transition: color 0.3s ease, opacity 0.5s ease;
     cursor: pointer;
 }
+#skip-btn:hover {
+    color: var(--color-text);
+    font-style: italic;
+}
 
 #scroll-direct {
     transform: translate(0, -50%);
     top: 46.2%;
     right: 5px;
 }
-#skip-btn:hover {
-    color: var(--color-text);
-    font-style: italic;
-}
 
-#scroll-direct-archive {
-    position: fixed;
-    font-family: inherit;
-    font-size: 13px;
-    color: var(--color-text-dim);
-    background-color: transparent;
-    border: none;
-    z-index: 80;
-    transform: translate(0, -50%);
-    top: 50%;
-    right: 5px;
-    transition: opacity 0.5s ease;
-}
-
-/* =========================================
-   Header Layout Change on PARK & HANJA Slide
-   ========================================= */
-.div-flex {
-    position: relative;
-    width: 60%;
-    min-height: 2.7em; 
-    transition: width 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-}
-
-.div-flex > p {
-    position: absolute;
-    left: 0%;
-    transform: translateX(0%);
-    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease, color 0.3s ease;
-    white-space: nowrap;
-}
-
-.div-flex > .div-flex1 {
-    position: absolute;
-    display: flex;
-    flex-direction: column; 
-    gap: 0; 
-    left: 100%;
-    transform: translateX(-100%);
-    transition: left 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-    white-space: nowrap;
-}
-
-/* PARK 화면과 HANJA 화면에서 공통으로 헤더 우측 이동 적용 */
+/* 6. 슬라이드 전환 시 헤더 타이틀/시계 좌우 스와이프 */
 body.show-park header,
 body.show-hanja header {
     width: calc(50% - 2.2rem - 5px);
@@ -403,28 +371,65 @@ body.show-hanja .div-flex > .div-flex1 {
     transform: translateX(0%);
 }
 
-/* =========================================
-   Archive Masonry Layout
-   ========================================= */
-   .archive {
+/* 7. Loading Fade Out Animation (인트로 종료 시 1.5초 동안 살짝 페이드) */
+body.is-leaving-loading a,
+body.is-leaving-loading header p,
+body.is-leaving-loading .content p,
+body.is-leaving-loading .info-text-box p,
+body.is-leaving-loading #cursor-log,
+body.is-leaving-loading #live-time,
+body.is-leaving-loading #last-updated {
+    transition: opacity 1.5s ease, color 1.5s ease !important;
+}
+
+
+/* =============================================================
+   INFO — 소개 팝업 (index.html, archive.html 메뉴에서 공통 호출)
+   ============================================================= */
+.info-text-box {
+    position: absolute;
+    top: 23px;
+    left: 5px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+
+/* =============================================================
+   ARCHIVE — 아카이브 그리드 페이지 (archive.html 전용)
+   ============================================================= */
+
+/* 1. 헤더 타이틀 스크롤 진행바
+   스크롤에 따라 위치(transform)는 계속 따라가되, 애니메이션 없이 즉시 반응하게 함 */
+.archive-body header .div-flex > p {
+    transition: opacity 0.3s ease, color 0.3s ease;
+    position: relative;
+    z-index: 10;
+}
+
+/* 2. Masonry Grid Layout */
+.archive {
     display: grid;
-    grid-auto-flow: column; 
-    grid-auto-columns: minmax(110px, 15vw); 
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(110px, 15vw);
     column-gap: 10px;
     overflow-x: auto;
     width: 100%;
     height: auto;
+    font-size: 13px;
+    line-height: 1.35;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: none; 
+    overscroll-behavior-x: none;
     scroll-snap-type: none !important;
-}
-
-.archive::-webkit-scrollbar {
-    display: none;
-}
-.archive {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    cursor: grab;
+}
+.archive:active {
+    cursor: grabbing;
+}
+.archive::-webkit-scrollbar {
+    display: none;
 }
 
 .archive-item {
@@ -462,16 +467,28 @@ body.show-hanja .div-flex > .div-flex1 {
 .span-7 { grid-column: auto / span 7; }
 .span-8 { grid-column: auto / span 8; }
 
-/* =========================================
-   Media Popup & Hover Overlay Styles
-   ========================================= */
+#scroll-direct-archive {
+    position: fixed;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--color-text-dim);
+    background-color: transparent;
+    border: none;
+    z-index: 80;
+    transform: translate(0, -50%);
+    top: 50%;
+    right: 5px;
+    transition: opacity 0.5s ease;
+}
+
+/* 3. Media Popup & Hover Overlay */
 
 /* JS로 생성된 미디어 래퍼 */
 .popup-media-wrap {
     position: relative;
     display: block;
-    overflow: hidden; 
-    margin-bottom: 5px; 
+    overflow: hidden;
+    margin-bottom: 5px;
 }
 
 .popup-media-wrap img,
@@ -496,7 +513,7 @@ body.show-hanja .div-flex > .div-flex1 {
     align-items: center;
     opacity: 0;
     transition: opacity 0.5s ease;
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 .popup-hover-overlay.is-hovered {
@@ -554,9 +571,7 @@ body.show-hanja .div-flex > .div-flex1 {
     background-color: black;
 }
 
-/* =========================================
-   다중 이미지 가로 스크롤 갤러리
-   ========================================= */
+/* 4. 다중 이미지 가로 스크롤 갤러리 */
 .popup-gallery {
     display: flex;
     align-items: center;
@@ -564,6 +579,10 @@ body.show-hanja .div-flex > .div-flex1 {
     overflow-x: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    cursor: grab;
+}
+.popup-gallery:active {
+    cursor: grabbing;
 }
 
 .popup-gallery::-webkit-scrollbar {
@@ -580,7 +599,7 @@ body.show-hanja .div-flex > .div-flex1 {
 /* 갤러리 내부의 SVG/이미지 (찌그러짐 완벽 방지) */
 .popup-gallery img {
     width: auto;
-    flex-shrink: 0; 
+    flex-shrink: 0;
     box-shadow: 0 10px 40px var(--color-shadow);
     margin: 50px 10px 50px 0;
     scroll-snap-align: center;
@@ -590,42 +609,17 @@ body.show-hanja .div-flex > .div-flex1 {
     margin-right: 0;
 }
 
-/* =========================================
-   Drag & Selection Prevention
-   ========================================= */
-/* 드래그 시 텍스트/요소 선택 방지 및 커서 변경 */
-.is-dragging {
-    user-select: none !important;
-    -webkit-user-select: none !important;
-    cursor: grabbing !important;
-}
 
-.archive, .popup-gallery {
-    cursor: grab;
-}
-
-.archive:active, .popup-gallery:active {
-    cursor: grabbing;
-}
-
-/* 브라우저 기본 이미지/링크 고스트 드래그 방지 */
-img, svg, a {
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-}
-
-/* =========================================
-   Mobile Optimization (max-width: 768px)
-   ========================================= */
+/* =============================================================
+   MOBILE — 모바일 버전 (max-width: 768px)
+   ============================================================= */
 @media (max-width: 768px) {
     /* --- 공통 --- */
     html body {
         overflow-y: auto !important;
         overscroll-behavior-y: auto !important;
     }
-    
+
     header {
         position: fixed;
         left: 0;
@@ -696,6 +690,7 @@ img, svg, a {
         overscroll-behavior-y: auto !important;
     }
 
+    /* --- index --- */
     .j-path,
     .u-path,
     .n-path,
@@ -721,11 +716,12 @@ img, svg, a {
         min-height: calc((100vw - 10px - 2.2rem) * 97 / 42 + 10px + 2.2rem);
     }
 
+    /* --- archive --- */
     .archive {
         display: flex;
         gap: 1.5rem;
         flex-direction: column;
-        height: auto; 
+        height: auto;
         align-items: center;
         padding-top: 2.5rem;
         padding-bottom: 3rem;
@@ -736,7 +732,6 @@ img, svg, a {
         grid-column: auto !important;
         scroll-snap-align: center;
         transition: flex 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
-        transform-origin: center center;
     }
 
     .popup-gallery {

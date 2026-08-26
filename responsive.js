@@ -1,5 +1,5 @@
 /* =========================================
-    브라우저 기본 스와이프(뒤로가기) 방지 (데스크탑 전용)
+    1. Desktop Swipe-Back Prevention
    ========================================= */
 if (window.innerWidth > 768) {
     document.body.style.overscrollBehaviorX = 'none';
@@ -7,6 +7,7 @@ if (window.innerWidth > 768) {
 }
 
 /* =========================================
+    2. Theme-Aware Stroke Color Helper
     JUNG/PARK 큰 글자의 "옅은 회색" 인라인 색상.
     다크모드 여부에 따라 CSS 변수(--color-stroke-soft) 값이 바뀌므로,
     'gainsboro'를 직접 박아넣는 대신 매번 이 값을 읽어서 사용함
@@ -211,10 +212,9 @@ const gPath = document.querySelector('.g-path');
 const isReturnVisit = sessionStorage.getItem('site_visited') === 'true';
 sessionStorage.setItem('site_visited', 'true');
 
-let isAnimated = false; 
+let isAnimated = false;
 let morphFrameId;
 let animTimeouts = [];
-let skipListenerAdded = false;
 
 function drawResponsiveJUNG() {
     if (!jSvg || !jPath) {
@@ -1002,20 +1002,17 @@ drawResponsiveHANJA(hanjaWeight);
 
 
 /* =========================================
-   Index Page Drag Swipe (Slide 0, 1, 2)
+    8. Index Page Drag Swipe (Slide 0, 1, 2)
    ========================================= */
 let indexDragStartX = 0;
 let isIndexDragging = false;
 
 window.addEventListener('mousedown', (e) => {
     if (window.innerWidth <= 768) return;
-    
+
     // 아카이브, 팝업창, 메뉴 등 다른 클릭/스크롤 요소에서는 슬라이드 스와이프 방지
     if (e.target.closest('.archive') || e.target.closest('#media-popup-content') || e.target.closest('menu') || e.target.closest('.info-text-box')) return;
-    
-    // 모바일 오버레이가 켜져있으면 작동 방지
-    if (document.getElementById('mobile-block-overlay') && window.getComputedStyle(document.getElementById('mobile-block-overlay')).display !== 'none') return;
-    
+
     isIndexDragging = true;
     indexDragStartX = e.clientX;
     document.body.classList.add('is-dragging');
@@ -1051,6 +1048,4 @@ window.addEventListener('mousemove', (e) => {
         e.preventDefault();
     }
 }, { passive: false });
-
-/* 모바일 responsive */
 

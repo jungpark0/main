@@ -18,13 +18,13 @@ function updateTime() {
 }
 
 if (timeElement) {
-    updateTime(); 
-    setInterval(updateTime, 1000); 
+    updateTime();
+    setInterval(updateTime, 1000);
 }
 
 /* =========================================
-    2. Cursor Log
-    ========================================= */
+   2. Cursor Log
+   ========================================= */
 const cursorLog = document.getElementById('cursor-log');
 
 document.addEventListener('mousemove', (e) => {
@@ -36,14 +36,14 @@ document.addEventListener('mousemove', (e) => {
 });
 
 /* =========================================
-    2-1. Menu Hover State
-    (사파리는 조상 요소(body)의 클래스 변화로 간접적으로 값이 바뀌는
-    요소는 opacity transition을 제대로 애니메이션하지 않는 경우가 있어서,
-    흐려져야 하는 요소들에 클래스를 직접 붙여줌)
+   3. Menu Hover State
+   (사파리는 조상 요소(body)의 클래스 변화로 간접적으로 값이 바뀌는
+   요소는 opacity transition을 제대로 애니메이션하지 않는 경우가 있어서,
+   흐려져야 하는 요소들에 클래스를 직접 붙여줌)
    ========================================= */
 const menuDiv = document.querySelector('menu div');
 const menuHoverDimTargets = document.querySelectorAll(
-    'menu a, header p:not(#live-time, #last-updated), .content p, .archive-info p, .info-text-box p, #live-time, #cursor-log, #last-updated'
+    'menu a, header p:not(#live-time, #last-updated), .content p, .info-text-box p, #live-time, #cursor-log, #last-updated'
 );
 if (menuDiv) {
     menuDiv.addEventListener('mouseenter', () => {
@@ -61,10 +61,10 @@ if (menuDiv) {
 }
 
 /* =========================================
-    2-2. Dark Mode Toggle
-    (data-theme이 없으면 시스템 설정(prefers-color-scheme)을 그대로 따름.
-    <head>의 인라인 스크립트가 저장된 값을 먼저 적용해서 깜빡임을 막고,
-    여기서는 토글 버튼 동작과 아이콘 갱신만 담당함)
+   4. Dark Mode Toggle
+   (data-theme이 없으면 시스템 설정(prefers-color-scheme)을 그대로 따름.
+   <head>의 인라인 스크립트가 저장된 값을 먼저 적용해서 깜빡임을 막고,
+   여기서는 토글 버튼 동작과 아이콘 갱신만 담당함)
    ========================================= */
 const themeToggle = document.getElementById('theme-toggle');
 const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -99,17 +99,17 @@ prefersDarkQuery.addEventListener('change', () => {
 });
 
 /* =========================================
-    8. Last Updated Relative Time (Auto)
-    ========================================= */
+   5. Last Updated Relative Time (Auto)
+   ========================================= */
 const lastUpdatedElement = document.getElementById('last-updated');
-const lastUpdateDate = new Date(document.lastModified); 
+const lastUpdateDate = new Date(document.lastModified);
 
 function calculateTimeSinceUpdate() {
     if (!lastUpdatedElement) return;
 
     const now = new Date();
-    const diffMs = now - lastUpdateDate; 
-    
+    const diffMs = now - lastUpdateDate;
+
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
@@ -131,13 +131,13 @@ function calculateTimeSinceUpdate() {
 }
 
 if (lastUpdatedElement) {
-    calculateTimeSinceUpdate(); 
-    setInterval(calculateTimeSinceUpdate, 60000); 
+    calculateTimeSinceUpdate();
+    setInterval(calculateTimeSinceUpdate, 60000);
 }
 
 /* =========================================
-    9. Page Load Handling (For Archive & Info)
-    ========================================= */
+   6. Page Load Handling (Archive 등 인트로 없는 페이지)
+   ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     // '.graphic-j' (오프닝 애니메이션)가 없는 페이지라면
     if (!document.querySelector('.graphic-j')) {
@@ -150,9 +150,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
 /* =========================================
-   11. Dynamic Info Popup
+   7. Dynamic Info Popup
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     // 모든 페이지의 메뉴에서 Info와 Index 링크를 자동으로 찾습니다.
@@ -167,20 +166,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (infoLink) {
         // Info 버튼의 원래 링크 이동을 막습니다 (# 껍데기만 남김)
-        infoLink.setAttribute('href', '#'); 
+        infoLink.setAttribute('href', '#');
 
         infoLink.addEventListener('click', (e) => {
-            e.preventDefault(); 
+            e.preventDefault();
 
             // 팝업이 이미 생성되어 있는지 확인
             let popup = document.getElementById('dynamic-info-popup');
-            
+
             // 팝업이 없다면 JS가 HTML 요소를 실시간으로 '창조'합니다.
             if (!popup) {
                 popup = document.createElement('div');
                 popup.id = 'dynamic-info-popup';
                 popup.className = 'info-overlay'; // 기존 CSS 디자인 그대로 적용
-                
+
                 // 팝업 안에 들어갈 텍스트 내용 삽입
                 popup.innerHTML = `
                     <div class="info-text-box">
@@ -190,14 +189,14 @@ window.addEventListener('DOMContentLoaded', () => {
                         <p>그래픽, 타이포그래피, 웹, 약간의 코딩을</p>
                         <p>오가며 시각을 탐구하는 과정을 기록합니다.</p>
                         <br>
-                        <p class="info"><a href="https://www.instagram.com/jungpaark/" target="_blank">@jungpaark</a></p>
-                        <p class="info"><a href="mailto:jung_park@naver.com">jung_park@naver.com</a></p>
+                        <p><a href="https://www.instagram.com/jungpaark/" target="_blank">@jungpaark</a></p>
+                        <p><a href="mailto:jung_park@naver.com">jung_park@naver.com</a></p>
                     </div>
                 `;
-                
+
                 // 완성된 팝업을 화면(body)에 끼워 넣습니다.
                 document.body.appendChild(popup);
-                
+
                 // 팝업의 반투명한 빈 배경을 클릭하면 팝업이 닫히는 센스있는 기능 추가
                 popup.addEventListener('click', (event) => {
                     if (event.target === popup) {
@@ -218,7 +217,7 @@ window.addEventListener('DOMContentLoaded', () => {
         indexLink.addEventListener('click', (e) => {
             const popup = document.getElementById('dynamic-info-popup');
             if (popup && popup.classList.contains('is-active')) {
-                e.preventDefault(); 
+                e.preventDefault();
                 popup.classList.remove('is-active');
             }
         });
@@ -226,18 +225,18 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   Archive Horizontal Scroll & UI Animation (최적화 버전)
+   8. Archive: Horizontal Scroll & Name Progress Bar
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     const archiveContainer = document.querySelector('.archive');
     const scrollDirectArchive = document.getElementById('scroll-direct-archive');
-    
+
     const nameText = document.querySelector('.archive-body header .div-flex > p');
-    
-    window.isScrollingDrag = false; 
+
+    window.isScrollingDrag = false;
 
     if (archiveContainer) {
-        
+
         // [최적화 1] 스크롤할 때마다 무거운 계산을 피하기 위해 측정값을 저장해둘 변수
         let maxScrollLeft = 0;
         let maxMoveX = 0;
@@ -253,15 +252,15 @@ window.addEventListener('DOMContentLoaded', () => {
         let isTicking = false;
         const updateProgressBar = () => {
             if (!nameText) return;
-            
+
             if (maxScrollLeft <= 0) {
                 nameText.style.transform = `translateX(0px)`;
                 return;
             }
-            
+
             const scrollRatio = archiveContainer.scrollLeft / maxScrollLeft;
             const moveX = Math.max(0, maxMoveX * scrollRatio);
-            
+
             // translate3d를 사용하여 크롬에서 하드웨어 가속 강제 활성화
             nameText.style.transform = `translate3d(${moveX}px, 0, 0)`;
         };
@@ -277,7 +276,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     scrollDirectArchive.style.pointerEvents = 'auto';
                 }
             }
-            
+
             // 크롬 스크롤 버벅임 방지용 rAF 패턴
             if (!isTicking) {
                 window.requestAnimationFrame(() => {
@@ -293,7 +292,7 @@ window.addEventListener('DOMContentLoaded', () => {
             calculateDimensions();
             updateProgressBar();
         });
-        
+
         // 초기 로딩 시 폰트가 적용된 직후 1회 계산
         setTimeout(() => {
             calculateDimensions();
@@ -334,7 +333,7 @@ window.addEventListener('DOMContentLoaded', () => {
             startX = e.pageX - archiveContainer.offsetLeft;
             scrollLeft = archiveContainer.scrollLeft;
         });
-        
+
         window.addEventListener('mouseup', () => {
             isDown = false;
             document.body.classList.remove('is-dragging');
@@ -346,9 +345,9 @@ window.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const x = e.pageX - archiveContainer.offsetLeft;
             const walk = (x - startX) * 1.5;
-            
+
             if (Math.abs(walk) > 5) {
-                window.isScrollingDrag = true; 
+                window.isScrollingDrag = true;
             }
             archiveContainer.scrollLeft = scrollLeft - walk;
         });
@@ -367,7 +366,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   Archive Image/Video Popup & Hover Overlay
+   9. Archive: Media Popup & Hover Overlay
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     const archiveItems = document.querySelectorAll('.archive-item');
@@ -377,14 +376,14 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!mediaPopup) {
         mediaPopup = document.createElement('div');
         mediaPopup.id = 'media-popup';
-        mediaPopup.className = 'info-overlay popup-flex-center'; 
-        
+        mediaPopup.className = 'info-overlay popup-flex-center';
+
         mediaPopup.innerHTML = `<div id="media-popup-content"></div>`;
         document.body.appendChild(mediaPopup);
 
         mediaPopup.addEventListener('click', (e) => {
             // 갤러리 스크롤 드래그 중이었으면 닫히는 것 방지
-            if (window.isPopupScrollingDrag) return; 
+            if (window.isPopupScrollingDrag) return;
 
             const tagName = e.target.tagName.toLowerCase();
             if (tagName !== 'img' && tagName !== 'video') {
@@ -397,10 +396,10 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     archiveItems.forEach(item => {
-        const link = item.querySelector('a'); 
-        const mediaEl = item.querySelector('img, video'); 
-        const titleEl = item.querySelector('p'); 
-        
+        const link = item.querySelector('a');
+        const mediaEl = item.querySelector('img, video');
+        const titleEl = item.querySelector('p');
+
         if (!mediaEl || !titleEl) return;
 
         // 링크 클릭 시 스크롤 드래그 중이었다면 이동 방지
@@ -412,10 +411,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const mediaWrap = document.createElement('div');
         mediaWrap.className = 'popup-media-wrap';
-        
+
         const hoverOverlay = document.createElement('div');
         hoverOverlay.className = 'popup-hover-overlay';
-        
+
         const overlayText = link ? 'Visit Website ↗' : 'View More ↗';
         hoverOverlay.innerHTML = `<span>${overlayText}</span>`;
 
@@ -448,15 +447,15 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const contentWrap = document.getElementById('media-popup-content');
-                contentWrap.innerHTML = ''; 
-                
+                contentWrap.innerHTML = '';
+
                 const customSrc = item.getAttribute('data-popup-src');
                 const galleryFolder = item.getAttribute('data-gallery-folder');
                 const galleryCount = parseInt(item.getAttribute('data-gallery-count'), 10);
                 const galleryExt = item.getAttribute('data-gallery-ext') || '.svg';
-                
+
                 // [추가됨] 유튜브 ID 가져오기
-                const youtubeId = item.getAttribute('data-youtube-id'); 
+                const youtubeId = item.getAttribute('data-youtube-id');
 
                 let newMedia;
 
@@ -472,7 +471,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 } else if (galleryFolder && galleryCount) {
                     newMedia = document.createElement('div');
                     newMedia.className = 'popup-gallery';
-                    
+
                     for (let i = 1; i <= galleryCount; i++) {
                         const img = document.createElement('img');
                         img.src = `${galleryFolder}${i}${galleryExt}`;
@@ -502,7 +501,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         popupStartX = ev.pageX - newMedia.offsetLeft;
                         popupScrollLeft = newMedia.scrollLeft;
                     });
-                    
+
                     window.addEventListener('mouseup', () => {
                         isPopupDown = false;
                         document.body.classList.remove('is-dragging');
@@ -526,13 +525,13 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (isVideo) {
                         newMedia = document.createElement('video');
                         newMedia.src = customSrc;
-                        newMedia.setAttribute('controls', 'true'); 
+                        newMedia.setAttribute('controls', 'true');
                     } else {
                         newMedia = document.createElement('img');
                         newMedia.src = customSrc;
                         if (mediaEl.style.backgroundColor) newMedia.style.backgroundColor = mediaEl.style.backgroundColor;
                     }
-                    
+
                 // [케이스 4] 기본 썸네일 복제
                 } else {
                     newMedia = mediaEl.cloneNode(true);
@@ -541,7 +540,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         newMedia.removeAttribute('autoplay');
                     }
                 }
-                
+
                 contentWrap.appendChild(newMedia);
 
                 setTimeout(() => {
@@ -552,7 +551,7 @@ window.addEventListener('DOMContentLoaded', () => {
                             const alignCenter = () => {
                                 newMedia.scrollLeft = firstImg.offsetWidth / 2;
                             };
-                            if (firstImg.complete) { alignCenter(); } 
+                            if (firstImg.complete) { alignCenter(); }
                             else { firstImg.onload = alignCenter; }
                         }
                     }
@@ -566,7 +565,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   Archive Layout (Intersection Observer)
+   10. Archive: Grid Scale Animation (Intersection Observer)
    - 모바일: 화면 중앙에 온 아이템만 확대(is-center)
    - 데스크탑: 가로 스크롤 뷰 안에 들어온 아이템만 확대(is-in-view), 접속 시에도 동일하게 작았다가 커짐
    ========================================= */
@@ -645,7 +644,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
+/* =========================================
+   11. Archive: Hide "Last Updated" on Mobile Scroll
+   ========================================= */
 document.addEventListener("DOMContentLoaded", () => {
     const lastUpdated = document.getElementById("last-updated");
 
@@ -683,7 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================================
-   Mobile: Hide/Show <menu> by Scroll Direction
+   12. Archive: Hide Menu on Mobile Scroll Direction
    ========================================= */
 document.addEventListener("DOMContentLoaded", () => {
     const menu = document.querySelector("menu");
