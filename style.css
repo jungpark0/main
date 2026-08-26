@@ -415,7 +415,7 @@ body.is-leaving-loading #last-updated {
     column-gap: 10px;
     overflow-x: auto;
     width: 100%;
-    height: auto;
+    height: 100vh;
     font-size: 13px;
     line-height: 1.35;
     -webkit-overflow-scrolling: touch;
@@ -734,6 +734,7 @@ body.is-leaving-loading #last-updated {
     /* --- archive --- */
     .archive {
         display: flex;
+        height: auto;
         gap: 1.5rem;
         flex-direction: column;
         height: auto;
