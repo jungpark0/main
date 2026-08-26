@@ -61,6 +61,44 @@ if (menuDiv) {
 }
 
 /* =========================================
+    2-2. Dark Mode Toggle
+    (data-theme이 없으면 시스템 설정(prefers-color-scheme)을 그대로 따름.
+    <head>의 인라인 스크립트가 저장된 값을 먼저 적용해서 깜빡임을 막고,
+    여기서는 토글 버튼 동작과 아이콘 갱신만 담당함)
+   ========================================= */
+const themeToggle = document.getElementById('theme-toggle');
+const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function getCurrentTheme() {
+    return document.documentElement.getAttribute('data-theme') || (prefersDarkQuery.matches ? 'dark' : 'light');
+}
+
+function updateThemeToggleIcon() {
+    if (themeToggle) themeToggle.textContent = getCurrentTheme() === 'dark' ? '☀' : '☾';
+}
+
+updateThemeToggleIcon();
+
+if (themeToggle) {
+    themeToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const nextTheme = getCurrentTheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('theme', nextTheme);
+        updateThemeToggleIcon();
+        // JUNG/PARK 큰 글자는 색이 인라인으로 박혀있어서 CSS 변수만으론 안 바뀜 -> responsive.js에 알림
+        document.dispatchEvent(new CustomEvent('themechange'));
+    });
+}
+
+// 수동으로 고정해둔 적 없으면, 시스템 설정이 바뀔 때 아이콘/글자 색도 같이 갱신
+prefersDarkQuery.addEventListener('change', () => {
+    if (localStorage.getItem('theme')) return;
+    updateThemeToggleIcon();
+    document.dispatchEvent(new CustomEvent('themechange'));
+});
+
+/* =========================================
     8. Last Updated Relative Time (Auto)
     ========================================= */
 const lastUpdatedElement = document.getElementById('last-updated');
@@ -438,6 +476,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     for (let i = 1; i <= galleryCount; i++) {
                         const img = document.createElement('img');
                         img.src = `${galleryFolder}${i}${galleryExt}`;
+                        // 썸네일에 지정된 배경색(투명 영역이 있는 이미지용)이 있으면 그대로 물려받음
+                        if (mediaEl.style.backgroundColor) img.style.backgroundColor = mediaEl.style.backgroundColor;
                         newMedia.appendChild(img);
                     }
 
@@ -490,6 +530,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     } else {
                         newMedia = document.createElement('img');
                         newMedia.src = customSrc;
+                        if (mediaEl.style.backgroundColor) newMedia.style.backgroundColor = mediaEl.style.backgroundColor;
                     }
                     
                 // [케이스 4] 기본 썸네일 복제

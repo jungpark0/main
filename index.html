@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./reset.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +36,8 @@
         <div>
             <a href="index.html" id="index-link">Index</a>
             <a href="archive.html">Archive</a>
-            <a href="#" id="info-link">Info</a> 
+            <a href="#" id="info-link">Info</a>
+            <a href="#" id="theme-toggle" aria-label="Toggle dark mode">☾</a>
         </div>
         <p id="cursor-log">000 • 000</p>
     </menu>

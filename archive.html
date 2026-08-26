@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./reset.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,61 +35,61 @@
     <div class="archive">
 
         <div class="archive-item span-5">
-            <a href="https://jungpark0.github.io/main/" target="_blank"><img src="./archive-images/newarchive.png" alt="new_archive"></a>
+            <a href="https://jungpark0.github.io/main/" target="_blank"><img src="./archive-images/newarchive.webp" alt="new_archive"></a>
             <a href="https://jungpark0.github.io/main/" target="_blank"><p>ARCHIVE WEBSITE(2026)</p></a>
             <div class="info-detail"><p>Web, Typography</p><p>2026.08</p></div>
         </div>
 
         <div class="archive-item span-3">
-            <img src="./archive-images/asiansquat.png" style="background-color: white;" alt="asian_squat">
+            <img src="./archive-images/asiansquat.webp" style="background-color: white;" alt="asian_squat">
             <p>아시안 스쾃(진행 중...)</p>
             <div class="info-detail"><p>Editorial, AI</p><p>2026.06</p></div>
         </div>
 
         <div class="archive-item span-2" data-youtube-id="RRm_FkT6m9w?si=fKbU1Xln2AW7Mjh3">
-            <img src="./archive-images/dissolving_girl.png" alt="dissolving_girl">
+            <img src="./archive-images/dissolving_girl.webp" alt="dissolving_girl">
             <p>DISSOLVING GIRL</p>
             <div class="info-detail"><p>Touch Designer</p><p>2026.03</p></div>
         </div>
 
-        <div class="archive-item span-3" data-gallery-folder="./archive-images/whatwelove/image" data-gallery-count="2" data-gallery-ext=".png">
-            <img src="./archive-images/whatwelove/image1.png" alt="whatwelove" style="background-color: white;">
+        <div class="archive-item span-3" data-gallery-folder="./archive-images/whatwelove/image" data-gallery-count="2" data-gallery-ext=".webp">
+            <img src="./archive-images/whatwelove/image1.webp" alt="whatwelove" style="background-color: white;">
             <p>우리를 살아가게 하는 것</p>
             <div class="info-detail"><p>Poster, Typography</p><p>2026.02</p></div>
         </div>
 
         <div class="archive-item span-4">
-            <a href="https://kikyoahki.kr" target="_blank"><img src="./archive-images/kikyoahki.png" alt="kikyoahki"></a>
+            <a href="https://kikyoahki.kr" target="_blank"><img src="./archive-images/kikyoahki.webp" alt="kikyoahki"></a>
             <a href="https://kikyoahki.kr" target="_blank"><p>키쿄아키</p></a>
             <div class="info-detail"><p>Web, Wordpress</p><p>2026.01</p></div>
         </div>
 
         <div class="archive-item span-2" data-popup-src="./archive-images/newyear2026.mov" alt="happy_new_year(2026)">
-            <img src="./archive-images/newyear2026.png" alt="happy_new_year(2026)">
+            <img src="./archive-images/newyear2026.webp" alt="happy_new_year(2026)">
             <p>붉은 말의 해(2026)</p>
             <div class="info-detail"><p>AI</p><p>2026.01</p></div>
         </div>
 
         <div class="archive-item span-2">
-            <a href="https://jungpark0.github.io/namecard/" target="_blank"><img src="./archive-images/namecard.png" alt="namecard"></a>
+            <a href="https://jungpark0.github.io/namecard/" target="_blank"><img src="./archive-images/namecard.webp" alt="namecard"></a>
             <a href="https://jungpark0.github.io/namecard/" target="_blank"><p>NAME CARD(2025)</p></a>
             <div class="info-detail"><p>Web, Typography</p><p>2025.07</p></div>
         </div>
 
         <div class="archive-item span-3">
-            <a href="https://jungpark.neocities.org" target="_blank"><img src="./archive-images/archive.png" alt="archive"></a>
+            <a href="https://jungpark.neocities.org" target="_blank"><img src="./archive-images/archive.webp" alt="archive"></a>
             <a href="https://jungpark.neocities.org" target="_blank"><p>ARCHIVE WEBSITE(2025)</p></a>
             <div class="info-detail"><p>Web</p><p>2025.07</p></div>
         </div>
 
         <div class="archive-item span-1">
-            <a href="https://jungpark0.github.io/milktea/" target="_blank"><img src="./archive-images/milktea.png" alt="milktea"></a>
+            <a href="https://jungpark0.github.io/milktea/" target="_blank"><img src="./archive-images/milktea.webp" alt="milktea"></a>
             <a href="https://jungpark0.github.io/milktea//" target="_blank"><p>밀크티</p></a>
             <div class="info-detail"><p>Web</p><p>2025.06</p></div>
         </div>
 
         <div class="archive-item span-8">
-            <a href="https://jungpark0.github.io/2025/" target="_blank"><img src="./archive-images/newyear2025.svg" alt="happy_new_year(2025)"></a>
+            <a href="https://jungpark0.github.io/2025/" target="_blank"><img src="./archive-images/newyear2025.webp" alt="happy_new_year(2025)"></a>
             <a href="https://jungpark0.github.io/2025/" target="_blank"><p>푸른 뱀의 해(2025)</p></a>
             <div class="info-detail"><p>Typography</p><p>2025.01</p></div>
         </div>
@@ -95,19 +101,19 @@
         </div>
 
         <div class="archive-item span-5">
-            <a href="https://jungpark0.github.io/musicis/" target="_blank"><img src="./archive-images/musicis.png" alt="music_is"></a>
+            <a href="https://jungpark0.github.io/musicis/" target="_blank"><img src="./archive-images/musicis.webp" alt="music_is"></a>
             <a href="https://jungpark0.github.io/musicis/" target="_blank"><p>음악이란 말이죠...</p></a>
             <div class="info-detail"><p>Web</p><p>2024.11</p></div>
         </div>
 
         <div class="archive-item span-4" data-gallery-folder="./archive-images/hideout/image" data-gallery-count="11" data-gallery-ext=".svg">
-            <img src="./archive-images/hideout/hideout.png" alt="hideout">
+            <img src="./archive-images/hideout/hideout.webp" alt="hideout">
             <p>사라지는 꿈 - 술탄 오브 더 디스코</p>
             <div class="info-detail"><p>Typography</p><p>2024.11</p></div>
         </div>
         
         <div class="archive-item span-2">
-            <img src="./archive-images/typo1.png" alt="typo">
+            <img src="./archive-images/typo1.webp" alt="typo">
             <p>I FOUND MYSELF...</p>
             <div class="info-detail"><p>Typography</p><p>2024.06</p></div>
         </div>
@@ -118,6 +124,7 @@
             <a href="index.html">Index</a>
             <a href="archive.html">Archive</a>
             <a href="info.html">Info</a>
+            <a href="#" id="theme-toggle" aria-label="Toggle dark mode">☾</a>
         </div>
         <p id="cursor-log">000   000</p>
     </menu>

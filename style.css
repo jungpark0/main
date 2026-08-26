@@ -1,13 +1,61 @@
+/* =========================================
+   Theme Colors (Light / Dark)
+   ========================================= */
+:root {
+    --color-bg: rgb(250, 250, 250);
+    --color-bg-translucent: rgba(250, 250, 250, 0.72);
+    --color-bg-fade-solid: rgba(255, 255, 255, 1);
+    --color-bg-fade-transparent: rgba(255, 255, 255, 0);
+    --color-text: black;
+    --color-text-dim: darkgray;
+    --color-stroke-bold: black;
+    --color-stroke-soft: gainsboro;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* 명시적으로 토글한 적 없으면 시스템 설정을 그대로 따름 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-bg: rgb(20, 20, 20);
+        --color-bg-translucent: rgba(20, 20, 20, 0.72);
+        --color-bg-fade-solid: rgba(20, 20, 20, 1);
+        --color-bg-fade-transparent: rgba(20, 20, 20, 0);
+        --color-text: rgb(235, 235, 235);
+        --color-text-dim: #999;
+        --color-stroke-bold: rgb(235, 235, 235);
+        --color-stroke-soft: #444;
+        --color-shadow: rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* 메뉴에서 수동으로 다크를 켰으면 시스템 설정과 무관하게 항상 적용 */
+:root[data-theme="dark"] {
+    --color-bg: rgb(20, 20, 20);
+    --color-bg-translucent: rgba(20, 20, 20, 0.72);
+    --color-bg-fade-solid: rgba(20, 20, 20, 1);
+    --color-bg-fade-transparent: rgba(20, 20, 20, 0);
+    --color-text: rgb(235, 235, 235);
+    --color-text-dim: #999;
+    --color-stroke-bold: rgb(235, 235, 235);
+    --color-stroke-soft: #444;
+    --color-shadow: rgba(0, 0, 0, 0.5);
+}
+
 * {
     box-sizing: border-box !important;
 }
 
+html {
+    background-color: var(--color-bg);
+}
 html body {
     padding: 5px;
     font-family: "Google Sans", sans-serif;
     line-height: 1.35;
     font-weight: 400;
-    background-color: rgb(250, 250, 250);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
     min-height: 100dvh;
     overflow-y: hidden;
     overflow-x: hidden;
@@ -55,7 +103,7 @@ menu div {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(250, 250, 250, 0.72);
+    background-color: var(--color-bg-translucent);
     z-index: 90;
     opacity: 0;
     pointer-events: none;
@@ -97,7 +145,7 @@ menu div {
 #live-time, 
 #cursor-log,
 #last-updated {
-    color: darkgray;
+    color: var(--color-text-dim);
 }
 
 #cursor-log {
@@ -107,9 +155,9 @@ menu div {
 /* =========================================
    Archive Page: Name Text Progress Bar
    ========================================= */
-/* 아카이브 페이지에서는 인덱스용 1초 애니메이션(transition)을 제거하여 스크롤에 즉각 반응하게 만듭니다 */
+/* 스크롤에 따라 위치(transform)는 계속 따라가되, 애니메이션 없이 즉시 반응하게 함 */
 .archive-body header .div-flex > p {
-    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1), width 1s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.3s ease, color 0.3s ease;
+    transition: opacity 0.3s ease, color 0.3s ease;
     position: relative;
     z-index: 10;
 }
@@ -144,7 +192,7 @@ body.is-loading .info-text-box p {
 #cursor-log.is-menu-dimmed,
 #last-updated.is-menu-dimmed,
 body.is-loading #cursor-log {
-    color: black;
+    color: var(--color-text);
 }
 
 body.is-loading #live-time,
@@ -219,21 +267,21 @@ body.show-hanja .graphic-hanja {
 /* 한자 패스들의 기본 뼈대 (그리기 전 기본 설정) */
 .graphic-hanja path {
     fill: none;
-    stroke: gainsboro;
+    stroke: var(--color-stroke-soft);
     stroke-width: 2.2rem;
     stroke-linecap: square;
     stroke-linejoin: miter;
 }
 
 .hanja-dot {
-    fill: gainsboro;
+    fill: var(--color-stroke-soft);
     stroke: none;
     display: none; /* 모바일 상하 배치일 때만 JS가 켜줌 */
 }
 
 .j-path {
     fill: none; 
-    stroke: black;
+    stroke: var(--color-stroke-bold);
     stroke-width: 2.2rem;
     stroke-linecap: square;
     stroke-linejoin: miter;
@@ -244,7 +292,7 @@ body.show-hanja .graphic-hanja {
    ========================================= */
 .u-path, .n-path, .g-path, .p-path, .a-path, .r-path, .k-path {
     fill: none; 
-    stroke: black;
+    stroke: var(--color-stroke-bold);
     stroke-width: 2.2rem;
     stroke-linecap: square;
     stroke-linejoin: miter;
@@ -259,7 +307,7 @@ button,
     position: fixed;
     font-family: inherit;
     font-size: 13px;
-    color: darkgray;
+    color: var(--color-text-dim);
     background-color: transparent;
     border: none;
     z-index: 80;
@@ -279,7 +327,7 @@ button,
     right: 5px;
 }
 #skip-btn:hover {
-    color: black;
+    color: var(--color-text);
     font-style: italic;
 }
 
@@ -287,7 +335,7 @@ button,
     position: fixed;
     font-family: inherit;
     font-size: 13px;
-    color: darkgray;
+    color: var(--color-text-dim);
     background-color: transparent;
     border: none;
     z-index: 80;
@@ -401,7 +449,7 @@ body.show-hanja .div-flex > .div-flex1 {
 .archive-item .info-detail {
     display: flex;
     justify-content: space-between;
-    color: darkgray;
+    color: var(--color-text-dim);
 }
 
 /* Archive item widths (grid-column span) */
@@ -440,7 +488,7 @@ body.show-hanja .div-flex > .div-flex1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(250, 250, 250, 0.72);
+    background-color: var(--color-bg-translucent);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     display: flex;
@@ -458,7 +506,7 @@ body.show-hanja .div-flex > .div-flex1 {
 .popup-hover-overlay span {
     font-family: inherit;
     font-size: 13px;
-    color: black;
+    color: var(--color-text);
     font-style: italic;
 }
 
@@ -495,7 +543,7 @@ body.show-hanja .div-flex > .div-flex1 {
     width: auto;
     max-width: 90vw;
     object-fit: contain;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 40px var(--color-shadow);
     cursor: default;
 }
 
@@ -533,7 +581,7 @@ body.show-hanja .div-flex > .div-flex1 {
 .popup-gallery img {
     width: auto;
     flex-shrink: 0; 
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 40px var(--color-shadow);
     margin: 50px 10px 50px 0;
     scroll-snap-align: center;
 }
@@ -585,7 +633,7 @@ img, svg, a {
         padding: 5px;
         width: 100%;
         height: 3.5rem;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 0) 100%);
+        background: linear-gradient(180deg, var(--color-bg-fade-solid) 5%, var(--color-bg-fade-transparent) 100%);
     }
     .div-flex {
         display: flex;
@@ -600,7 +648,7 @@ img, svg, a {
         padding: 5px;
         height: 3.5rem;
         align-items: flex-end;
-        background: linear-gradient(360deg, rgba(255, 255, 255, 1) 5%, rgba(255, 255, 255, 0) 100%);
+        background: linear-gradient(360deg, var(--color-bg-fade-solid) 5%, var(--color-bg-fade-transparent) 100%);
     }
     #scroll-direct-archive,
     #scroll-direct,
@@ -636,7 +684,7 @@ img, svg, a {
 
     body.is-menu-hovering #live-time,
     body.is-menu-hovering #last-updated {
-        color: darkgray;
+        color: var(--color-text-dim);
     }
     .info-text-box {
         top: 2.5rem;
@@ -712,7 +760,7 @@ img, svg, a {
         height: auto;
         max-width: 95vw;
         object-fit: contain;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 40px var(--color-shadow);
         cursor: default;
     }
     #media-popup-content > iframe {

@@ -7,6 +7,34 @@ if (window.innerWidth > 768) {
 }
 
 /* =========================================
+    JUNG/PARK 큰 글자의 "옅은 회색" 인라인 색상.
+    다크모드 여부에 따라 CSS 변수(--color-stroke-soft) 값이 바뀌므로,
+    'gainsboro'를 직접 박아넣는 대신 매번 이 값을 읽어서 사용함
+   ========================================= */
+function getSoftStrokeColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--color-stroke-soft').trim();
+}
+
+// 테마가 바뀌면(script.js가 dispatch) 이미 인라인 색상이 박혀있는 글자들을 다시 칠함
+document.addEventListener('themechange', () => {
+    const softColor = getSoftStrokeColor();
+    const paths = [
+        document.querySelector('.j-path'),
+        document.querySelector('.u-path'),
+        document.querySelector('.n-path'),
+        document.querySelector('.g-path'),
+        document.querySelector('.p-path'),
+        document.querySelector('.a-path'),
+        document.querySelector('.r-path'),
+        document.querySelector('.k-path'),
+        document.querySelector('.k-diag-path'),
+    ];
+    paths.forEach(p => {
+        if (p && p.style.stroke) p.style.stroke = softColor;
+    });
+});
+
+/* =========================================
     3. Global Slide State & Scroll Control
    ========================================= */
 let isIntroFinished = false; 
@@ -332,7 +360,7 @@ function drawResponsiveJUNG() {
                 paths.forEach(p => {
                     if (p) {
                         p.style.transition = 'stroke 1.2s ease'; 
-                        p.style.stroke = 'gainsboro';
+                        p.style.stroke = getSoftStrokeColor();
                     }
                 });
                 
@@ -351,7 +379,7 @@ function drawResponsiveJUNG() {
         jPath.style.strokeDasharray = 'none';
         jPath.style.strokeDashoffset = 0;
         jPath.style.opacity = 1;
-        jPath.style.stroke = 'gainsboro';
+        jPath.style.stroke = getSoftStrokeColor();
 
         const paths = [uPath, nPath, gPath];
         const dArray = [dU, dN, dG];
@@ -362,7 +390,7 @@ function drawResponsiveJUNG() {
                 p.style.strokeDasharray = 'none';
                 p.style.strokeDashoffset = 0; 
                 p.style.transition = 'none';
-                p.style.stroke = 'gainsboro';
+                p.style.stroke = getSoftStrokeColor();
             }
         });
 
@@ -532,7 +560,7 @@ function drawResponsivePARK() {
     paths.forEach(p => {
         if (p) {
             p.style.fill = 'none';
-            p.style.stroke = 'gainsboro';
+            p.style.stroke = getSoftStrokeColor();
             p.style.strokeWidth = '2.2rem';
             p.style.strokeLinecap = 'square'; 
             p.style.strokeLinejoin = 'miter';
@@ -546,7 +574,7 @@ function drawResponsivePARK() {
 
     if (kDiagPath) {
         kDiagPath.style.fill = 'none';
-        kDiagPath.style.stroke = 'gainsboro';
+        kDiagPath.style.stroke = getSoftStrokeColor();
         kDiagPath.style.strokeWidth = '2.2rem';
         kDiagPath.style.strokeLinecap = 'butt'; 
         kDiagPath.style.strokeLinejoin = 'miter';
