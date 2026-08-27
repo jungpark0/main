@@ -454,8 +454,11 @@ body.is-leaving-loading #last-updated {
     transform: scale(1);
 }
 
+/* HTML의 width/height 속성은 로딩 전에 자리를 미리 잡아 레이아웃 밀림을 막는 용도이므로,
+   실제 표시 크기는 CSS가 결정하도록 height: auto로 비율을 되돌려줌 */
 .archive-item img {
     width: 100%;
+    height: auto;
     display: block;
     margin-bottom: 5px;
 }
@@ -504,6 +507,7 @@ body.is-leaving-loading #last-updated {
 .popup-media-wrap video {
     display: block;
     width: 100%;
+    height: auto;
     margin-bottom: 0 !important;
 }
 
