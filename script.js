@@ -445,8 +445,11 @@ window.addEventListener('DOMContentLoaded', () => {
         const mediaWrap = document.createElement('div');
         mediaWrap.className = 'popup-media-wrap';
 
-        mediaEl.parentNode.insertBefore(mediaWrap, mediaEl);
-        mediaWrap.appendChild(mediaEl);
+        // 이미지가 <picture>로 감싸져 있으면(모바일 저용량 버전 제공용) img만 빼내면
+        // <source>와의 연결이 끊기므로 <picture>를 통째로 옮김
+        const mediaNode = mediaEl.closest('picture') || mediaEl;
+        mediaNode.parentNode.insertBefore(mediaWrap, mediaNode);
+        mediaWrap.appendChild(mediaNode);
 
         // 호버 오버레이는 backdrop-filter(blur)를 쓰기 때문에 아이템 하나당 합성 레이어가 하나씩 생김.
         // 터치 기기에서는 호버 자체가 없어서 평생 보이지도 않으면서 15개가 그대로 메모리를 잡아먹으므로,
