@@ -461,12 +461,6 @@ body.is-leaving-loading #last-updated {
     transform: scale(1);
 }
 
-/* <picture>는 기본이 inline이라 아래 여백이 생기므로 block으로 맞춰줌 */
-.archive-item picture,
-.popup-media-wrap picture {
-    display: block;
-}
-
 /* HTML의 width/height 속성은 로딩 전에 자리를 미리 잡아 레이아웃 밀림을 막는 용도이므로,
    실제 표시 크기는 CSS가 결정하도록 height: auto로 비율을 되돌려줌 */
 .archive-item img {
