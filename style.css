@@ -109,13 +109,9 @@ menu div {
     gap: 0.5rem;
 }
 
-/* 다크모드 토글 아이콘(SVG)이 옆 텍스트 링크들과 같은 줄에서 가운데 정렬되도록 함 */
+/* 다크모드 토글(☾/☼)이 기기에 따라 컬러 이모지로 바뀌지 않고 항상 텍스트로 그려지게 못박음 */
 #theme-toggle {
-    display: inline-flex;
-    align-items: center;
-}
-#theme-toggle svg {
-    display: block;
+    font-variant-emoji: text;
 }
 
 /* 헤더 타이틀/시계 영역 레이아웃. index.html에서는 슬라이드가 바뀔 때
@@ -416,7 +412,17 @@ body.is-leaving-loading #last-updated {
     z-index: 10;
 }
 
-/* 2. Masonry Grid Layout */
+/* 2. Masonry Grid Layout
+   데스크탑에서는 body를 세로 flex로 만들어서 .archive가 "남은 높이 전체"를 정확히 차지하게 함.
+   height:auto면 내용 높이만큼만 잡혀서 화면 아래쪽에서는 스크롤/드래그가 안 먹고,
+   height:100vh면 헤더 높이만큼 화면을 넘쳐서 새로고침 시 헤더와 겹쳐버림.
+   flex:1은 그 사이 정확한 값(=100dvh - 헤더 - 여백)을 자동으로 계산해줌 */
+.archive-body {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+}
+
 .archive {
     display: grid;
     grid-auto-flow: column;
@@ -424,7 +430,8 @@ body.is-leaving-loading #last-updated {
     column-gap: 10px;
     overflow-x: auto;
     width: 100%;
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
     font-size: 13px;
     line-height: 1.35;
     -webkit-overflow-scrolling: touch;
@@ -452,6 +459,12 @@ body.is-leaving-loading #last-updated {
 /* 데스크탑: 가로 스크롤 뷰 안에 들어온 아이템만 원래 크기로 확대 */
 .archive-item.is-in-view {
     transform: scale(1);
+}
+
+/* <picture>는 기본이 inline이라 아래 여백이 생기므로 block으로 맞춰줌 */
+.archive-item picture,
+.popup-media-wrap picture {
+    display: block;
 }
 
 /* HTML의 width/height 속성은 로딩 전에 자리를 미리 잡아 레이아웃 밀림을 막는 용도이므로,
@@ -745,8 +758,15 @@ body.is-leaving-loading #last-updated {
     }
 
     /* --- archive --- */
+    /* 모바일은 세로로 길게 이어지는 일반 스크롤이므로, 데스크탑의 "화면 높이에 가둬두는" flex 레이아웃을 해제 */
+    .archive-body {
+        display: block;
+        height: auto;
+    }
+
     .archive {
         display: flex;
+        flex: none;
         height: auto;
         gap: 1.5rem;
         flex-direction: column;

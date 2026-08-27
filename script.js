@@ -75,13 +75,11 @@ function getCurrentTheme() {
     return document.documentElement.getAttribute('data-theme') || (prefersDarkQuery.matches ? 'dark' : 'light');
 }
 
-// 유니코드 ☀/☾ 문자는 iOS에서 텍스트 선택자(U+FE0E)를 붙여도 컬러 이모지로 렌더링되는 경우가 있어서,
-// 플랫폼에 무관하게 항상 같은 모양으로 나오도록 인라인 SVG 아이콘을 직접 그려서 씀
-const moonIconSVG = '<svg viewBox="0 0 24 24" width="0.85em" height="0.85em" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>';
-const sunIconSVG = '<svg viewBox="0 0 24 24" width="0.85em" height="0.85em" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-
+// ☀(U+2600)은 유니코드에 이모지 표현이 정의되어 있어서 iOS가 컬러 이모지로 바꿔버림.
+// ☼(U+263C, WHITE SUN WITH RAYS)는 이모지 표현 자체가 없는 글자라 어떤 기기에서도 항상 텍스트로 그려짐.
+// ☾(U+263E)도 마찬가지로 이모지가 없어서 그대로 씀. (CSS의 font-variant-emoji: text로 한 번 더 못박음)
 function updateThemeToggleIcon() {
-    if (themeToggle) themeToggle.innerHTML = getCurrentTheme() === 'dark' ? sunIconSVG : moonIconSVG;
+    if (themeToggle) themeToggle.textContent = getCurrentTheme() === 'dark' ? '☼' : '☾';
 }
 
 updateThemeToggleIcon();
@@ -447,8 +445,11 @@ window.addEventListener('DOMContentLoaded', () => {
         const mediaWrap = document.createElement('div');
         mediaWrap.className = 'popup-media-wrap';
 
-        mediaEl.parentNode.insertBefore(mediaWrap, mediaEl);
-        mediaWrap.appendChild(mediaEl);
+        // 이미지가 <picture>로 감싸져 있으면(모바일 저용량 이미지 제공용) img만 빼내면
+        // <source>와의 연결이 끊기므로, <picture> 통째로 옮김
+        const mediaNode = mediaEl.closest('picture') || mediaEl;
+        mediaNode.parentNode.insertBefore(mediaWrap, mediaNode);
+        mediaWrap.appendChild(mediaNode);
 
         // 호버 오버레이는 backdrop-filter(blur)를 쓰기 때문에 아이템 하나당 합성 레이어가 하나씩 생김.
         // 터치 기기에서는 호버 자체가 없어서 평생 보이지도 않으면서 15개가 그대로 메모리를 잡아먹으므로,
