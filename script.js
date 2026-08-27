@@ -295,9 +295,16 @@ window.addEventListener('DOMContentLoaded', () => {
         }, { passive: true });
 
         // 브라우저 리사이즈 시에만 무거운 계산(크기 측정)을 다시 수행합니다.
+        // scrollWidth/offsetWidth를 읽는 건 강제 레이아웃을 유발하므로,
+        // resize가 연달아 발생해도 한 프레임에 한 번만 실행되도록 rAF로 묶음
+        let resizeFrame = null;
         window.addEventListener('resize', () => {
-            calculateDimensions();
-            updateProgressBar();
+            if (resizeFrame) return;
+            resizeFrame = requestAnimationFrame(() => {
+                calculateDimensions();
+                updateProgressBar();
+                resizeFrame = null;
+            });
         });
 
         // 초기 로딩 시 폰트가 적용된 직후 1회 계산
@@ -392,6 +399,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const archiveItems = document.querySelectorAll('.archive-item');
     let mediaPopup = document.getElementById('media-popup');
     window.isPopupScrollingDrag = false; // 팝업 갤러리 드래그 상태
+    const canHover = window.matchMedia('(hover: hover)').matches;
     // 갤러리 드래그 리스너는 window에 붙기 때문에, 팝업을 열 때마다 새로 추가되고 쌓이지 않도록
     // 매번 이전 것들을 정리(abort)하고 새로 등록함
     let popupDragController = null;
@@ -439,27 +447,32 @@ window.addEventListener('DOMContentLoaded', () => {
         const mediaWrap = document.createElement('div');
         mediaWrap.className = 'popup-media-wrap';
 
-        const hoverOverlay = document.createElement('div');
-        hoverOverlay.className = 'popup-hover-overlay';
-
-        const overlayText = link ? 'Visit Website ↗' : 'View More ↗';
-        hoverOverlay.innerHTML = `<span>${overlayText}</span>`;
-
         mediaEl.parentNode.insertBefore(mediaWrap, mediaEl);
         mediaWrap.appendChild(mediaEl);
-        mediaWrap.appendChild(hoverOverlay);
 
-        const toggleHover = (isHovering) => {
-            if (isHovering) hoverOverlay.classList.add('is-hovered');
-            else hoverOverlay.classList.remove('is-hovered');
-        };
-
+        // 호버 오버레이는 backdrop-filter(blur)를 쓰기 때문에 아이템 하나당 합성 레이어가 하나씩 생김.
+        // 터치 기기에서는 호버 자체가 없어서 평생 보이지도 않으면서 15개가 그대로 메모리를 잡아먹으므로,
+        // 실제 마우스 호버가 가능한 기기에서만 만들어 붙임
         const titleTarget = titleEl.closest('a') || titleEl;
 
-        mediaWrap.addEventListener('mouseenter', () => toggleHover(true));
-        mediaWrap.addEventListener('mouseleave', () => toggleHover(false));
-        titleTarget.addEventListener('mouseenter', () => toggleHover(true));
-        titleTarget.addEventListener('mouseleave', () => toggleHover(false));
+        if (canHover) {
+            const hoverOverlay = document.createElement('div');
+            hoverOverlay.className = 'popup-hover-overlay';
+
+            const overlayText = link ? 'Visit Website ↗' : 'View More ↗';
+            hoverOverlay.innerHTML = `<span>${overlayText}</span>`;
+            mediaWrap.appendChild(hoverOverlay);
+
+            const toggleHover = (isHovering) => {
+                if (isHovering) hoverOverlay.classList.add('is-hovered');
+                else hoverOverlay.classList.remove('is-hovered');
+            };
+
+            mediaWrap.addEventListener('mouseenter', () => toggleHover(true));
+            mediaWrap.addEventListener('mouseleave', () => toggleHover(false));
+            titleTarget.addEventListener('mouseenter', () => toggleHover(true));
+            titleTarget.addEventListener('mouseleave', () => toggleHover(false));
+        }
 
         if (!link) {
             mediaWrap.style.cursor = 'pointer';
@@ -620,9 +633,15 @@ window.addEventListener('DOMContentLoaded', () => {
     let desktopObserver;
 
     const initMobileObserver = () => {
-        // 데스크탑 환경일 경우 Observer 해제 및 클래스 초기화
+        // 이전 Observer는 항상 먼저 끊어줌. (예전에는 같은 화면폭에서 resize가 반복되면
+        // 끊지 않은 채 새 Observer를 계속 만들어서, 살아있는 Observer가 무한정 쌓였음)
+        if (mobileObserver) {
+            mobileObserver.disconnect();
+            mobileObserver = null;
+        }
+
+        // 데스크탑 환경일 경우 클래스 초기화 후 종료
         if (window.innerWidth > 768) {
-            if (mobileObserver) mobileObserver.disconnect();
             archiveItems.forEach(item => item.classList.remove('is-center'));
             return;
         }
@@ -649,9 +668,14 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     const initDesktopObserver = () => {
-        // 모바일 환경일 경우 Observer 해제 및 클래스 초기화
+        // (위 initMobileObserver와 동일한 이유로) 이전 Observer를 항상 먼저 끊어줌
+        if (desktopObserver) {
+            desktopObserver.disconnect();
+            desktopObserver = null;
+        }
+
+        // 모바일 환경일 경우 클래스 초기화 후 종료
         if (window.innerWidth <= 768) {
-            if (desktopObserver) desktopObserver.disconnect();
             archiveItems.forEach(item => item.classList.remove('is-in-view'));
             return;
         }
@@ -680,7 +704,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
     initMobileObserver();
     initDesktopObserver();
+
+    // 모바일 브라우저는 스크롤할 때 주소창이 접혔다 펴지면서 resize가 계속 발생함.
+    // Observer는 화면폭이 모바일<->데스크탑 경계를 실제로 넘었을 때만 다시 만들면 되므로,
+    // 폭이 그대로면(=주소창 높이 변화 등) 아무것도 하지 않고 넘어감
+    let wasMobile = window.innerWidth <= 768;
     window.addEventListener('resize', () => {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile === wasMobile) return;
+        wasMobile = isMobile;
         initMobileObserver();
         initDesktopObserver();
     });

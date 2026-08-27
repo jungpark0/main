@@ -990,14 +990,36 @@ if (hanjaSvg) {
     });
 }
 
-window.addEventListener('resize', () => {
+/* 8. Resize 시 글자 다시 그리기 (rAF 스로틀 + 폭 기준 판정)
+   세 함수 모두 SVG path의 좌표를 전부 다시 계산하는 무거운 작업이라, resize가 연달아
+   발생할 때 매번 실행하면 눈에 띄게 버벅임.
+   - requestAnimationFrame으로 묶어서 한 프레임에 최대 한 번만 실행
+   - 모바일은 스크롤 중 주소창이 접혔다 펴지며 "높이만" 바뀌는 resize가 계속 발생하는데,
+     글자 비율은 CSS aspect-ratio로 폭에만 연동되므로(=높이 변화는 그림에 영향 없음)
+     폭이 그대로면 다시 그리지 않고 넘어감 */
+let redrawFrame = null;
+let lastDrawnWidth = window.innerWidth;
+
+const redrawAllGraphics = () => {
     drawResponsiveJUNG();
     drawResponsivePARK();
     drawResponsiveHANJA(hanjaWeight);
+};
+
+window.addEventListener('resize', () => {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile && window.innerWidth === lastDrawnWidth) return;
+
+    if (!redrawFrame) {
+        redrawFrame = requestAnimationFrame(() => {
+            lastDrawnWidth = window.innerWidth;
+            redrawAllGraphics();
+            redrawFrame = null;
+        });
+    }
 });
-drawResponsiveJUNG();
-drawResponsivePARK();
-drawResponsiveHANJA(hanjaWeight);
+
+redrawAllGraphics();
 
 
 
