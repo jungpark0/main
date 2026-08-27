@@ -45,7 +45,9 @@ const menuDiv = document.querySelector('menu div');
 const menuHoverDimTargets = document.querySelectorAll(
     'menu a, header p:not(#live-time, #last-updated), .content p, .info-text-box p, #live-time, #cursor-log, #last-updated'
 );
-if (menuDiv) {
+// 터치 기기는 탭 직후 브라우저가 mouseenter를 흉내내는 경우가 있어서(고스트 호버),
+// 실제 마우스 호버가 가능한 기기에서만 붙임 -> 모바일에서 다크모드 토글 탭이 다른 메뉴를 흐리게 만들지 않음
+if (menuDiv && window.matchMedia('(hover: hover)').matches) {
     menuDiv.addEventListener('mouseenter', () => {
         // 사파리는 같은 프레임에서 클래스를 바로 추가하면 transition 없이 뚝 끊겨서 적용됨.
         // 다른 팝업들과 동일하게 한 프레임 뒤로 미뤄서 트랜지션이 걸릴 틈을 줌
@@ -73,8 +75,13 @@ function getCurrentTheme() {
     return document.documentElement.getAttribute('data-theme') || (prefersDarkQuery.matches ? 'dark' : 'light');
 }
 
+// 유니코드 ☀/☾ 문자는 iOS에서 텍스트 선택자(U+FE0E)를 붙여도 컬러 이모지로 렌더링되는 경우가 있어서,
+// 플랫폼에 무관하게 항상 같은 모양으로 나오도록 인라인 SVG 아이콘을 직접 그려서 씀
+const moonIconSVG = '<svg viewBox="0 0 24 24" width="0.85em" height="0.85em" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>';
+const sunIconSVG = '<svg viewBox="0 0 24 24" width="0.85em" height="0.85em" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+
 function updateThemeToggleIcon() {
-    if (themeToggle) themeToggle.textContent = getCurrentTheme() === 'dark' ? '☀' : '☾';
+    if (themeToggle) themeToggle.innerHTML = getCurrentTheme() === 'dark' ? sunIconSVG : moonIconSVG;
 }
 
 updateThemeToggleIcon();
@@ -321,9 +328,15 @@ window.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
 
         // 3. 마우스 드래그 스크롤
+        // mousemove를 container가 아니라 window에 붙여서, 빠르게 드래그하다 커서가
+        // 컨테이너 경계 밖으로 나가도(=흔한 상황) 추적이 끊기지 않게 함.
+        // 또한 wheel 스크롤과 동일하게 requestAnimationFrame으로 배치 처리해서
+        // mousemove가 프레임보다 자주 발생해도 scrollLeft를 매번 동기적으로 건드리지 않게 함
         let isDown = false;
         let startX;
-        let scrollLeft;
+        let dragBaseScrollLeft;
+        let pendingDragScrollLeft = null;
+        let dragFrame = null;
 
         archiveContainer.addEventListener('mousedown', (e) => {
             if (window.innerWidth <= 768) return;
@@ -331,7 +344,7 @@ window.addEventListener('DOMContentLoaded', () => {
             window.isScrollingDrag = false;
             document.body.classList.add('is-dragging');
             startX = e.pageX - archiveContainer.offsetLeft;
-            scrollLeft = archiveContainer.scrollLeft;
+            dragBaseScrollLeft = archiveContainer.scrollLeft;
         });
 
         window.addEventListener('mouseup', () => {
@@ -340,7 +353,7 @@ window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { window.isScrollingDrag = false; }, 50);
         });
 
-        archiveContainer.addEventListener('mousemove', (e) => {
+        window.addEventListener('mousemove', (e) => {
             if (!isDown) return;
             e.preventDefault();
             const x = e.pageX - archiveContainer.offsetLeft;
@@ -349,7 +362,14 @@ window.addEventListener('DOMContentLoaded', () => {
             if (Math.abs(walk) > 5) {
                 window.isScrollingDrag = true;
             }
-            archiveContainer.scrollLeft = scrollLeft - walk;
+
+            pendingDragScrollLeft = dragBaseScrollLeft - walk;
+            if (!dragFrame) {
+                dragFrame = requestAnimationFrame(() => {
+                    archiveContainer.scrollLeft = pendingDragScrollLeft;
+                    dragFrame = null;
+                });
+            }
         });
 
         // 4. 모바일: 상단 헤더를 탭하면 페이지 맨 위로 스크롤
@@ -372,6 +392,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const archiveItems = document.querySelectorAll('.archive-item');
     let mediaPopup = document.getElementById('media-popup');
     window.isPopupScrollingDrag = false; // 팝업 갤러리 드래그 상태
+    // 갤러리 드래그 리스너는 window에 붙기 때문에, 팝업을 열 때마다 새로 추가되고 쌓이지 않도록
+    // 매번 이전 것들을 정리(abort)하고 새로 등록함
+    let popupDragController = null;
 
     if (!mediaPopup) {
         mediaPopup = document.createElement('div');
@@ -388,6 +411,10 @@ window.addEventListener('DOMContentLoaded', () => {
             const tagName = e.target.tagName.toLowerCase();
             if (tagName !== 'img' && tagName !== 'video') {
                 mediaPopup.classList.remove('is-active');
+                if (popupDragController) {
+                    popupDragController.abort();
+                    popupDragController = null;
+                }
                 setTimeout(() => {
                     document.getElementById('media-popup-content').innerHTML = '';
                 }, 500);
@@ -480,6 +507,11 @@ window.addEventListener('DOMContentLoaded', () => {
                         newMedia.appendChild(img);
                     }
 
+                    // 팝업을 열 때마다 새 리스너 세트를 등록하므로, 이전 세트를 먼저 정리함
+                    if (popupDragController) popupDragController.abort();
+                    popupDragController = new AbortController();
+                    const { signal: popupDragSignal } = popupDragController;
+
                     // 1. 팝업 갤러리 마우스 휠 스크롤
                     newMedia.addEventListener('wheel', (ev) => {
                         if (Math.abs(ev.deltaX) > 0) return;
@@ -487,28 +519,31 @@ window.addEventListener('DOMContentLoaded', () => {
                             ev.preventDefault();
                             newMedia.scrollLeft += ev.deltaY;
                         }
-                    }, { passive: false });
+                    }, { passive: false, signal: popupDragSignal });
 
                     // 2. 팝업 갤러리 마우스 드래그 스크롤
+                    // (아카이브 그리드 드래그와 동일한 이유로 mousemove는 window에, scrollLeft 반영은 rAF로 배치)
                     let isPopupDown = false;
                     let popupStartX;
-                    let popupScrollLeft;
+                    let popupBaseScrollLeft;
+                    let pendingPopupScrollLeft = null;
+                    let popupDragFrame = null;
 
                     newMedia.addEventListener('mousedown', (ev) => {
                         isPopupDown = true;
                         window.isPopupScrollingDrag = false;
                         document.body.classList.add('is-dragging');
                         popupStartX = ev.pageX - newMedia.offsetLeft;
-                        popupScrollLeft = newMedia.scrollLeft;
-                    });
+                        popupBaseScrollLeft = newMedia.scrollLeft;
+                    }, { signal: popupDragSignal });
 
                     window.addEventListener('mouseup', () => {
                         isPopupDown = false;
                         document.body.classList.remove('is-dragging');
                         setTimeout(() => { window.isPopupScrollingDrag = false; }, 50);
-                    });
+                    }, { signal: popupDragSignal });
 
-                    newMedia.addEventListener('mousemove', (ev) => {
+                    window.addEventListener('mousemove', (ev) => {
                         if (!isPopupDown) return;
                         ev.preventDefault();
                         const x = ev.pageX - newMedia.offsetLeft;
@@ -516,8 +551,15 @@ window.addEventListener('DOMContentLoaded', () => {
                         if (Math.abs(walk) > 5) {
                             window.isPopupScrollingDrag = true;
                         }
-                        newMedia.scrollLeft = popupScrollLeft - walk;
-                    });
+
+                        pendingPopupScrollLeft = popupBaseScrollLeft - walk;
+                        if (!popupDragFrame) {
+                            popupDragFrame = requestAnimationFrame(() => {
+                                newMedia.scrollLeft = pendingPopupScrollLeft;
+                                popupDragFrame = null;
+                            });
+                        }
+                    }, { signal: popupDragSignal });
 
                 // [케이스 3] 로컬 단일 커스텀 미디어 (비디오/이미지)
                 } else if (customSrc) {

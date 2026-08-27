@@ -109,6 +109,15 @@ menu div {
     gap: 0.5rem;
 }
 
+/* 다크모드 토글 아이콘(SVG)이 옆 텍스트 링크들과 같은 줄에서 가운데 정렬되도록 함 */
+#theme-toggle {
+    display: inline-flex;
+    align-items: center;
+}
+#theme-toggle svg {
+    display: block;
+}
+
 /* 헤더 타이틀/시계 영역 레이아웃. index.html에서는 슬라이드가 바뀔 때
    position:relative 기준으로 .div-flex > p / .div-flex1이 좌우로 스와이프됨
    (아래 INDEX 섹션의 body.show-park/body.show-hanja 규칙 참고) */
