@@ -1,0 +1,243 @@
+/* =========================================================================
+   JUNG / PARK / 亭朴 인트로 — 단독 실행용 스타일
+
+   본 사이트(../style.css)에서 인트로 애니메이션에 필요한 규칙만 추려낸 것입니다.
+   헤더 / 메뉴 / Info 팝업 / 아카이브 관련 규칙은 전부 빠졌습니다.
+   ========================================================================= */
+
+/* =========================================
+   0. Theme Colors (Light / Dark)
+   ========================================= */
+:root {
+    --color-bg: rgb(250, 250, 250);
+    --color-text: black;
+    --color-text-dim: darkgray;
+    --color-stroke-bold: black;
+    --color-stroke-soft: gainsboro;
+}
+
+/* 명시적으로 토글한 적 없으면 시스템 설정을 그대로 따름 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-bg: rgb(20, 20, 20);
+        --color-text: rgb(235, 235, 235);
+        --color-text-dim: #999;
+        --color-stroke-bold: rgb(235, 235, 235);
+        --color-stroke-soft: #444;
+    }
+}
+
+/* 본 사이트에서 수동으로 다크를 켜뒀으면 시스템 설정과 무관하게 적용 */
+:root[data-theme="dark"] {
+    --color-bg: rgb(20, 20, 20);
+    --color-text: rgb(235, 235, 235);
+    --color-text-dim: #999;
+    --color-stroke-bold: rgb(235, 235, 235);
+    --color-stroke-soft: #444;
+}
+
+
+/* =========================================
+   1. Base
+   ========================================= */
+* {
+    box-sizing: border-box !important;
+}
+
+html {
+    background-color: var(--color-bg);
+}
+
+html body {
+    padding: 5px;
+    font-family: "Google Sans", sans-serif;
+    line-height: 1.35;
+    font-weight: 400;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100dvh;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+}
+
+/* 브라우저 기본 이미지/링크 고스트 드래그 방지 */
+img, svg, a {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
+
+.content {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+/* 드래그로 슬라이드를 넘기는 동안 커서/선택 방지 */
+.is-dragging {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    cursor: grabbing !important;
+}
+
+
+/* =========================================
+   2. Graphic Sliding Layout
+   (JUNG / PARK / HANJA 3화면 세로 슬라이드)
+   ========================================= */
+.graphic-j,
+.graphic-park,
+.graphic-hanja {
+    position: fixed;
+    left: calc(5px + 1.1rem);
+    width: calc(100vw - 10px - 2.2rem);
+    height: calc(100vh - 10px - 2.2rem);
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+    transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.graphic-j {
+    top: calc(5px + 1.1rem);
+    transform: translateY(0);
+}
+
+.graphic-park {
+    top: calc(100vh + 5px + 1.1rem);
+    transform: translateY(0);
+}
+
+.graphic-hanja {
+    /* 세 번째 화면은 200vh 아래에서 대기합니다 */
+    top: calc(200vh + 5px + 1.1rem);
+    transform: translateY(0);
+}
+
+/* Slide 2: PARK 화면 (-100vh 이동) */
+body.show-park .graphic-j,
+body.show-park .graphic-park,
+body.show-park .graphic-hanja {
+    transform: translateY(-100vh);
+}
+
+/* Slide 3: HANJA 화면 (-200vh 이동) */
+body.show-hanja .graphic-j,
+body.show-hanja .graphic-park,
+body.show-hanja .graphic-hanja {
+    transform: translateY(-200vh);
+}
+
+
+/* =========================================
+   3. JUNG Typography Path
+   ========================================= */
+.j-path {
+    fill: none;
+    stroke: var(--color-stroke-bold);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+
+.u-path, .n-path, .g-path {
+    fill: none;
+    stroke: var(--color-stroke-bold);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    opacity: 0;
+}
+
+
+/* =========================================
+   4. PARK Typography Path
+   ========================================= */
+.p-path, .a-path, .r-path, .k-path {
+    fill: none;
+    stroke: var(--color-stroke-bold);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    opacity: 0;
+}
+
+
+/* =========================================
+   5. HANJA (亭 朴) 뼈대 & 강조 점
+   ========================================= */
+.graphic-hanja path {
+    fill: none;
+    stroke: var(--color-stroke-soft);
+    stroke-width: 2.2rem;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+
+.hanja-dot {
+    fill: var(--color-stroke-soft);
+    stroke: none;
+    display: none; /* 모바일 상하 배치일 때만 JS가 켜줌 */
+}
+
+
+/* =========================================
+   6. Scroll 안내
+   ========================================= */
+#scroll-direct {
+    position: fixed;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--color-text-dim);
+    background-color: transparent;
+    border: none;
+    z-index: 80;
+    transform: translate(0, -50%);
+    top: 46.2%;
+    right: 5px;
+}
+
+
+/* =============================================================
+   MOBILE — 모바일 버전 (max-width: 768px)
+   JUNG / PARK는 감추고 한자만 세로로 길게 배치합니다.
+   ============================================================= */
+@media (max-width: 768px) {
+    html body {
+        overflow-y: auto !important;
+        overscroll-behavior-y: auto !important;
+    }
+
+    #scroll-direct {
+        display: none;
+    }
+
+    .j-path,
+    .u-path,
+    .n-path,
+    .g-path,
+    .graphic-park {
+        display: none;
+    }
+
+    /* 글자 비율은 기기 화면 높이(vh)가 아니라 폭 기준 고정 비율(aspect-ratio)로 잡아서
+       아이폰 SE든 13이든 글자 모양이 항상 동일하게 나오게 함 */
+    .graphic-hanja {
+        position: absolute;
+        left: calc(5px + 1.1rem);
+        /* 데스크탑에서는 세 번째 슬라이드라 200vh 아래에 있지만, 모바일은
+           슬라이드가 없고 이 글자만 보여주므로 맨 위로 되돌립니다 */
+        top: calc(5px + 1.1rem);
+        aspect-ratio: 42 / 97;
+        height: auto;
+        transform: translateY(0);
+    }
+
+    /* body 높이를 .graphic-hanja와 같은 폭 기준 계산식으로 맞춰서,
+       글자 바로 아래에서 정확히 끝나게 함 (남는 여백도, 잘리는 부분도 없음) */
+    body {
+        min-height: calc((100vw - 10px - 2.2rem) * 97 / 42 + 10px + 2.2rem);
+    }
+}

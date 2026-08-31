@@ -1,50 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
+        // 저장된 테마를 첫 페인트 전에 적용 (본 사이트에서 다크로 켜뒀다면 그대로 따라감)
         (function () {
             var t = localStorage.getItem('theme');
             if (t) document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png">
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./reset.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
-    <title>정현 박</title>
+    <title>JUNG / PARK / 亭朴</title>
 </head>
 <body class="is-loading">
-    <header>
-        <div class="div-flex">
-            <p>정현 박</p>
-            <div class="div-flex1">
-                <p id="live-time"></p> 
-                <p id="last-updated"></p>
-            </div>
-        </div>
-        <br>
-    </header>
     <div class="content">
-        <button id="skip-btn">Skip Intro &rarr;</button>
         <span id="scroll-direct">Scroll &darr;</span>
     </div>
 
-    <menu>
-        <div>
-            <a href="index.html" id="index-link">Index</a>
-            <a href="archive.html">Archive</a>
-            <a href="#" id="info-link">Info</a>
-            <a href="#" id="theme-toggle" aria-label="Toggle dark mode">☾</a>
-        </div>
-        <p id="cursor-log">000 • 000</p>
-    </menu>
-    
     <svg class="graphic-j">
         <path class="j-path"></path>
         <path class="u-path"></path>
@@ -73,6 +50,5 @@
         <circle class="hanja-dot"></circle>
     </svg>
 </body>
-<script src="./script.js"></script>
 <script src="./responsive.js"></script>
 </html>

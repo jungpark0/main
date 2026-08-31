@@ -260,16 +260,9 @@ function drawResponsiveJUNG() {
     const dN = `M ${nLeftX},${h} L ${nLeftX},0 L ${nTopRightX},0 L ${nTopRightX},${h} L ${nUpwardX},${h} L ${nUpwardX},0`.trim().replace(/\s+/g, ' ');
     const dG = `M ${gRightX},${h * 0.3} L ${gRightX},0 L ${gLeftX},0 L ${gLeftX},${h} L ${gRightX - rCorner},${h} Q ${gRightX},${h} ${gRightX},${h - rCorner} L ${gRightX},${h * 0.5} L ${gCrossbarX},${h * 0.5}`.trim().replace(/\s+/g, ' ');
 
-    const skipBtn = document.getElementById('skip-btn');
-
     // ★ 변경 1: 처음 방문(!isReturnVisit)일 때만 전체 애니메이션을 실행합니다.
     // (모바일은 JUNG 그래픽 자체가 안 보이므로 애니메이션 없이 즉시 마무리 상태로 처리)
     if (!isAnimated && !isReturnVisit && window.innerWidth > 768) {
-        
-        // 처음 방문이므로 스킵 버튼은 숨깁니다. (스킵 로직 제거)
-        if (skipBtn) {
-            skipBtn.style.display = 'none';
-        }
 
         jPath.setAttribute('d', dFull);
         if(uPath) uPath.setAttribute('d', dU);
@@ -389,7 +382,6 @@ function drawResponsiveJUNG() {
         // 로딩 클래스 즉시 해제
         document.body.classList.remove('is-loading');
 
-        if (skipBtn) skipBtn.style.display = 'none';
         finishIntro(); 
     }
 }
