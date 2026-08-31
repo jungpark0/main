@@ -414,29 +414,40 @@ body.is-leaving-loading #last-updated {
     z-index: 10;
 }
 
-/* 2. Masonry Grid Layout (세로 스크롤)
-   8칸짜리 격자를 만들고 아이템이 위에서 아래로 흘러가게 합니다.
-   .span-N 값이 그대로 "몇 칸을 차지할지"가 되므로, 작업마다 크기가 다른
-   기존의 리듬을 유지하면서 페이지 전체가 세로로 스크롤됩니다.
-   (한 줄에 다 안 들어가는 아이템은 다음 줄로 넘어가면서 여백이 생기는데,
-   순서를 흐트러뜨리지 않으려고 dense 패킹은 일부러 쓰지 않았습니다.) */
+/* 2. Masonry Grid Layout
+   데스크탑에서는 body를 세로 flex로 만들어서 .archive가 "남은 높이 전체"를 정확히 차지하게 함.
+   height:auto면 내용 높이만큼만 잡혀서 화면 아래쪽에서는 스크롤/드래그가 안 먹고,
+   height:100vh면 헤더 높이만큼 화면을 넘쳐서 새로고침 시 헤더와 겹쳐버림.
+   flex:1은 그 사이 정확한 값(=100dvh - 헤더 - 여백)을 자동으로 계산해줌 */
 .archive-body {
-    /* 전역 html body의 overflow-y:hidden을 풀어서 문서가 세로로 스크롤되게 함 */
-    overflow-y: visible;
-    height: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
 }
 
 .archive {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    grid-auto-flow: row;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(110px, 15vw);
     column-gap: 10px;
-    row-gap: 3rem;
-    align-items: start; /* 이미지 비율이 제각각이므로 각자 높이대로 두고 위쪽 정렬 */
+    overflow-x: auto;
     width: 100%;
-    padding-bottom: 4rem; /* 하단 고정 메뉴에 마지막 줄이 가리지 않도록 */
+    flex: 1;
+    min-height: 0;
     font-size: 13px;
     line-height: 1.35;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: none;
+    scroll-snap-type: none !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    cursor: grab;
+}
+.archive:active {
+    cursor: grabbing;
+}
+.archive::-webkit-scrollbar {
+    display: none;
 }
 
 .archive-item {
@@ -447,7 +458,7 @@ body.is-leaving-loading #last-updated {
     transform: scale(0.7); /* 기본값 = 화면 밖(또는 아직 판정 전) 상태, grid-column span은 그대로 유지 */
 }
 
-/* 데스크탑: 화면 안에 들어온 아이템만 원래 크기로 확대 */
+/* 데스크탑: 가로 스크롤 뷰 안에 들어온 아이템만 원래 크기로 확대 */
 .archive-item.is-in-view {
     transform: scale(1);
 }
@@ -495,7 +506,6 @@ body.is-leaving-loading #last-updated {
     top: 50%;
     right: 5px;
     transition: opacity 0.5s ease;
-    pointer-events: none; /* 안내 문구일 뿐이라 아래 그리드 클릭을 막지 않게 함 */
 }
 
 /* 3. Media Popup & Hover Overlay */
@@ -753,8 +763,15 @@ body.is-leaving-loading #last-updated {
     }
 
     /* --- archive --- */
+    /* 모바일은 세로로 길게 이어지는 일반 스크롤이므로, 데스크탑의 "화면 높이에 가둬두는" flex 레이아웃을 해제 */
+    .archive-body {
+        display: block;
+        height: auto;
+    }
+
     .archive {
         display: flex;
+        flex: none;
         height: auto;
         gap: 1.5rem;
         flex-direction: column;

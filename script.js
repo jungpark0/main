@@ -230,10 +230,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================
-   8. Archive: Vertical Scroll & Name Progress Bar
-   (예전에는 가로 스크롤이라 휠 변환/드래그 스크롤이 필요했지만,
-   지금은 페이지가 그냥 세로로 스크롤되므로 브라우저 기본 스크롤을 그대로 씁니다.
-   여기서는 스크롤 진행률에 맞춰 헤더 이름을 오른쪽으로 밀어주는 일만 합니다.)
+   8. Archive: Horizontal Scroll & Name Progress Bar
    ========================================= */
 window.addEventListener('DOMContentLoaded', () => {
     const archiveContainer = document.querySelector('.archive');
@@ -241,19 +238,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const nameText = document.querySelector('.archive-body header .div-flex > p');
 
-    // 드래그 스크롤이 없어졌지만, 아래 9번 섹션의 클릭 가드가 이 값을 참조하므로 유지
     window.isScrollingDrag = false;
 
     if (archiveContainer) {
 
         // [최적화 1] 스크롤할 때마다 무거운 계산을 피하기 위해 측정값을 저장해둘 변수
-        let maxScrollTop = 0;
+        let maxScrollLeft = 0;
         let maxMoveX = 0;
 
         // [최적화 2] 화면 크기나 글자 크기를 측정하는 함수 (리사이즈될 때만 실행)
         const calculateDimensions = () => {
             if (!nameText) return;
-            maxScrollTop = document.documentElement.scrollHeight - window.innerHeight;
+            maxScrollLeft = archiveContainer.scrollWidth - archiveContainer.clientWidth;
             maxMoveX = window.innerWidth - nameText.offsetWidth - 10;
         };
 
@@ -262,12 +258,12 @@ window.addEventListener('DOMContentLoaded', () => {
         const updateProgressBar = () => {
             if (!nameText) return;
 
-            if (maxScrollTop <= 0) {
+            if (maxScrollLeft <= 0) {
                 nameText.style.transform = `translateX(0px)`;
                 return;
             }
 
-            const scrollRatio = window.scrollY / maxScrollTop;
+            const scrollRatio = archiveContainer.scrollLeft / maxScrollLeft;
             const moveX = Math.max(0, maxMoveX * scrollRatio);
 
             // translate3d를 사용하여 크롬에서 하드웨어 가속 강제 활성화
@@ -275,9 +271,9 @@ window.addEventListener('DOMContentLoaded', () => {
         };
 
         // 1. Scroll Event (requestAnimationFrame으로 초당 60프레임 동기화)
-        window.addEventListener('scroll', () => {
+        archiveContainer.addEventListener('scroll', () => {
             if (scrollDirectArchive) {
-                if (window.scrollY > 10) {
+                if (archiveContainer.scrollLeft > 10) {
                     scrollDirectArchive.style.opacity = '0';
                     scrollDirectArchive.style.pointerEvents = 'none';
                 } else {
@@ -297,7 +293,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }, { passive: true });
 
         // 브라우저 리사이즈 시에만 무거운 계산(크기 측정)을 다시 수행합니다.
-        // scrollHeight/offsetWidth를 읽는 건 강제 레이아웃을 유발하므로,
+        // scrollWidth/offsetWidth를 읽는 건 강제 레이아웃을 유발하므로,
         // resize가 연달아 발생해도 한 프레임에 한 번만 실행되도록 rAF로 묶음
         let resizeFrame = null;
         window.addEventListener('resize', () => {
@@ -315,13 +311,73 @@ window.addEventListener('DOMContentLoaded', () => {
             updateProgressBar();
         }, 100);
 
-        // 이미지가 하나씩 로드되면서 문서 높이가 늘어나므로, 그때마다 다시 측정
-        window.addEventListener('load', () => {
-            calculateDimensions();
-            updateProgressBar();
+        // 2. 마우스 휠 스크롤
+        let wheelDelta = 0;
+        let wheelFrame = null;
+
+        archiveContainer.addEventListener('wheel', (e) => {
+            if (window.innerWidth <= 768) return;
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            if (Math.abs(e.deltaY) === 0) return;
+
+            e.preventDefault();
+            wheelDelta += e.deltaY;
+
+            if (!wheelFrame) {
+                wheelFrame = requestAnimationFrame(() => {
+                    archiveContainer.scrollLeft += wheelDelta;
+                    wheelDelta = 0;
+                    wheelFrame = null;
+                });
+            }
+        }, { passive: false });
+
+        // 3. 마우스 드래그 스크롤
+        // mousemove를 container가 아니라 window에 붙여서, 빠르게 드래그하다 커서가
+        // 컨테이너 경계 밖으로 나가도(=흔한 상황) 추적이 끊기지 않게 함.
+        // 또한 wheel 스크롤과 동일하게 requestAnimationFrame으로 배치 처리해서
+        // mousemove가 프레임보다 자주 발생해도 scrollLeft를 매번 동기적으로 건드리지 않게 함
+        let isDown = false;
+        let startX;
+        let dragBaseScrollLeft;
+        let pendingDragScrollLeft = null;
+        let dragFrame = null;
+
+        archiveContainer.addEventListener('mousedown', (e) => {
+            if (window.innerWidth <= 768) return;
+            isDown = true;
+            window.isScrollingDrag = false;
+            document.body.classList.add('is-dragging');
+            startX = e.pageX - archiveContainer.offsetLeft;
+            dragBaseScrollLeft = archiveContainer.scrollLeft;
         });
 
-        // 2. 모바일: 상단 헤더를 탭하면 페이지 맨 위로 스크롤
+        window.addEventListener('mouseup', () => {
+            isDown = false;
+            document.body.classList.remove('is-dragging');
+            setTimeout(() => { window.isScrollingDrag = false; }, 50);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - archiveContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            if (Math.abs(walk) > 5) {
+                window.isScrollingDrag = true;
+            }
+
+            pendingDragScrollLeft = dragBaseScrollLeft - walk;
+            if (!dragFrame) {
+                dragFrame = requestAnimationFrame(() => {
+                    archiveContainer.scrollLeft = pendingDragScrollLeft;
+                    dragFrame = null;
+                });
+            }
+        });
+
+        // 4. 모바일: 상단 헤더를 탭하면 페이지 맨 위로 스크롤
         // (iOS는 상태바를 탭하면 자동으로 맨 위로 가지만, Android 등에는 그런 기능이 없어 보조로 제공)
         const archiveHeader = document.querySelector('.archive-body header');
         if (archiveHeader) {
@@ -625,11 +681,11 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 데스크탑 환경: 세로 스크롤이므로 브라우저 뷰포트(root: null) 기준으로 화면 안/밖 판정
+        // 데스크탑 환경: .archive의 가로 스크롤 뷰 기준으로 화면 안/밖 판정
         // 모든 아이템이 기본적으로 축소 상태에서 시작하므로, 접속 직후 화면 안에 있는 아이템도
         // Observer가 처음 걸리는 순간 is-in-view가 붙으며 커지는 애니메이션이 자연스럽게 재생됨
         const observerOptions = {
-            root: null,
+            root: archiveContainer,
             rootMargin: '0px',
             threshold: 0
         };
