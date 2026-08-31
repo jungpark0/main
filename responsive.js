@@ -290,7 +290,9 @@ function drawResponsiveJUNG() {
                 const len = p.getTotalLength();
                 p.style.strokeDasharray = len;
                 p.style.strokeDashoffset = len; 
-                p.style.opacity = 1; 
+                // dashoffset으로만 숨기면 stroke-linecap:square가 길이 0인 dash의 끝에
+                // 네모난 점을 남김. 그리기 시작 직전에 opacity를 1로 올려줌
+                p.style.opacity = 0;
                 p.style.transition = 'none';
             }
         });
@@ -336,15 +338,15 @@ function drawResponsiveJUNG() {
             const drawTransition = 'stroke-dashoffset 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
 
             animTimeouts.push(setTimeout(() => {
-                if(uPath) { uPath.style.transition = drawTransition; uPath.style.strokeDashoffset = 0; }
+                if(uPath) { uPath.style.opacity = 1; uPath.style.transition = drawTransition; uPath.style.strokeDashoffset = 0; }
             }, 900)); 
 
             animTimeouts.push(setTimeout(() => {
-                if(nPath) { nPath.style.transition = drawTransition; nPath.style.strokeDashoffset = 0; }
+                if(nPath) { nPath.style.opacity = 1; nPath.style.transition = drawTransition; nPath.style.strokeDashoffset = 0; }
             }, 1200)); 
 
             animTimeouts.push(setTimeout(() => {
-                if(gPath) { gPath.style.transition = drawTransition; gPath.style.strokeDashoffset = 0; }
+                if(gPath) { gPath.style.opacity = 1; gPath.style.transition = drawTransition; gPath.style.strokeDashoffset = 0; }
             }, 1500)); 
 
             animTimeouts.push(setTimeout(() => {
