@@ -160,17 +160,25 @@ window.addEventListener('wheel', (e) => {
     const infoPopup = document.getElementById('dynamic-info-popup');
     if (infoPopup && infoPopup.classList.contains('is-active')) return;
 
-    // 슬라이드가 세로로 움직이므로 세로 휠만 슬라이드를 넘깁니다.
-    // (가로 휠은 위에서 뒤로가기만 막고 여기서는 무시)
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-
-    if (Math.abs(e.deltaY) > 20) {
-        if (e.deltaY > 0) {
-            if (currentSlide === 0) goToSlide(1);
-            else if (currentSlide === 1) goToSlide(2);
-        } else {
-            if (currentSlide === 1) goToSlide(0);
-            else if (currentSlide === 2) goToSlide(1);
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        if (Math.abs(e.deltaX) > 20) {
+            if (e.deltaX > 0) { 
+                if (currentSlide === 0) goToSlide(1);
+                else if (currentSlide === 1) goToSlide(2);
+            } else { 
+                if (currentSlide === 1) goToSlide(0);
+                else if (currentSlide === 2) goToSlide(1);
+            }
+        }
+    } else {
+        if (Math.abs(e.deltaY) > 20) {
+            if (e.deltaY > 0) { 
+                if (currentSlide === 0) goToSlide(1);
+                else if (currentSlide === 1) goToSlide(2);
+            } else { 
+                if (currentSlide === 1) goToSlide(0);
+                else if (currentSlide === 2) goToSlide(1);
+            }
         }
     }
 }, { passive: false }); 
@@ -1009,9 +1017,8 @@ redrawAllGraphics();
 
 /* =========================================
     8. Index Page Drag Swipe (Slide 0, 1, 2)
-   슬라이드가 세로로 바뀌었으므로 위/아래 드래그로 넘깁니다.
    ========================================= */
-let indexDragStartY = 0;
+let indexDragStartX = 0;
 let isIndexDragging = false;
 
 window.addEventListener('mousedown', (e) => {
@@ -1021,7 +1028,7 @@ window.addEventListener('mousedown', (e) => {
     if (e.target.closest('.archive') || e.target.closest('#media-popup-content') || e.target.closest('menu') || e.target.closest('.info-text-box')) return;
 
     isIndexDragging = true;
-    indexDragStartY = e.clientY;
+    indexDragStartX = e.clientX;
     document.body.classList.add('is-dragging');
 });
 
@@ -1035,14 +1042,14 @@ window.addEventListener('mouseup', (e) => {
     const infoPopup = document.getElementById('dynamic-info-popup');
     if (infoPopup && infoPopup.classList.contains('is-active')) return;
 
-    const diffY = indexDragStartY - e.clientY;
+    const diffX = indexDragStartX - e.clientX;
 
     // 50px 이상 드래그 시 슬라이드 전환 실행
-    if (Math.abs(diffY) > 50) {
-        if (diffY > 0) { // 위로 스와이프 (다음 슬라이드로)
+    if (Math.abs(diffX) > 50) {
+        if (diffX > 0) { // 왼쪽으로 스와이프 (우측 슬라이드로)
             if (currentSlide === 0) goToSlide(1);
             else if (currentSlide === 1) goToSlide(2);
-        } else { // 아래로 스와이프 (이전 슬라이드로)
+        } else { // 오른쪽으로 스와이프 (좌측 슬라이드로)
             if (currentSlide === 1) goToSlide(0);
             else if (currentSlide === 2) goToSlide(1);
         }

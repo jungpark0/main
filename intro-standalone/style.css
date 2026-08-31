@@ -3,6 +3,9 @@
 
    본 사이트(../style.css)에서 인트로 애니메이션에 필요한 규칙만 추려낸 것입니다.
    헤더 / 메뉴 / Info 팝업 / 아카이브 관련 규칙은 전부 빠졌습니다.
+
+   ※ 본 사이트가 세로 슬라이드로 바뀌기 전의 "가로 슬라이드" 버전을 보존한 사본입니다.
+      따라서 ../style.css와는 슬라이드 방향이 의도적으로 다릅니다.
    ========================================================================= */
 
 /* =========================================
@@ -85,13 +88,13 @@ img, svg, a {
 
 /* =========================================
    2. Graphic Sliding Layout
-   (JUNG / PARK / HANJA 3화면 세로 슬라이드)
+   (JUNG / PARK / HANJA 3화면 가로 슬라이드)
    ========================================= */
 .graphic-j,
 .graphic-park,
 .graphic-hanja {
     position: fixed;
-    left: calc(5px + 1.1rem);
+    top: calc(5px + 1.1rem);
     width: calc(100vw - 10px - 2.2rem);
     height: calc(100vh - 10px - 2.2rem);
     z-index: 1;
@@ -101,33 +104,33 @@ img, svg, a {
 }
 
 .graphic-j {
-    top: calc(5px + 1.1rem);
-    transform: translateY(0);
+    left: calc(5px + 1.1rem);
+    transform: translateX(0);
 }
 
 .graphic-park {
-    top: calc(100vh + 5px + 1.1rem);
-    transform: translateY(0);
+    left: calc(100vw + 5px + 1.1rem);
+    transform: translateX(0);
 }
 
 .graphic-hanja {
-    /* 세 번째 화면은 200vh 아래에서 대기합니다 */
-    top: calc(200vh + 5px + 1.1rem);
-    transform: translateY(0);
+    /* 세 번째 화면은 200vw 밖에서 대기합니다 */
+    left: calc(200vw + 5px + 1.1rem);
+    transform: translateX(0);
 }
 
-/* Slide 2: PARK 화면 (-100vh 이동) */
+/* Slide 2: PARK 화면 (-100vw 이동) */
 body.show-park .graphic-j,
 body.show-park .graphic-park,
 body.show-park .graphic-hanja {
-    transform: translateY(-100vh);
+    transform: translateX(-100vw);
 }
 
-/* Slide 3: HANJA 화면 (-200vh 이동) */
+/* Slide 3: HANJA 화면 (-200vw 이동) */
 body.show-hanja .graphic-j,
 body.show-hanja .graphic-park,
 body.show-hanja .graphic-hanja {
-    transform: translateY(-200vh);
+    transform: translateX(-200vw);
 }
 
 
@@ -227,12 +230,9 @@ body.show-hanja .graphic-hanja {
     .graphic-hanja {
         position: absolute;
         left: calc(5px + 1.1rem);
-        /* 데스크탑에서는 세 번째 슬라이드라 200vh 아래에 있지만, 모바일은
-           슬라이드가 없고 이 글자만 보여주므로 맨 위로 되돌립니다 */
-        top: calc(5px + 1.1rem);
         aspect-ratio: 42 / 97;
         height: auto;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 
     /* body 높이를 .graphic-hanja와 같은 폭 기준 계산식으로 맞춰서,
